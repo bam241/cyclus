@@ -396,8 +396,6 @@ IF(NOT CYCLUS_DOC_ONLY)
     if(Cython_FOUND)
         INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_DIRS}"
             "${NUMPY_INCLUDE_DIRS}")
-    endif(Cython_FOUND)
-    if(Cython_FOUND)
         ADD_SUBDIRECTORY("${CYCLUS_PYSOURCE_DIR}")
     endif(Cython_FOUND)
 

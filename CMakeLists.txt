@@ -371,12 +371,7 @@ IF(NOT CYCLUS_DOC_ONLY)
       INCLUDE_DIRECTORIES(${inc_dirs})
     ENDIF()
     message("-- Include Directories: ${inc_dirs}")
-
-
-    if(Cython_FOUND)
-        INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_DIRS}"
-            "${NUMPY_INCLUDE_DIRS}")
-    endif(Cython_FOUND)
+    
     # set core version, one way or the other
     IF(NOT "${CORE_VERSION}" STREQUAL "")
         SET(core_version "${CORE_VERSION}")
@@ -399,8 +394,13 @@ IF(NOT CYCLUS_DOC_ONLY)
     ADD_SUBDIRECTORY("${CYCLUS_CLI_DIR}")
     ADD_SUBDIRECTORY("${CYCLUS_CMAKE_DIR}")
     if(Cython_FOUND)
+        INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_DIRS}"
+            "${NUMPY_INCLUDE_DIRS}")
+    endif(Cython_FOUND)
+    if(Cython_FOUND)
         ADD_SUBDIRECTORY("${CYCLUS_PYSOURCE_DIR}")
     endif(Cython_FOUND)
+
 
     ##############################################################################################
     ####################################### end includes #########################################

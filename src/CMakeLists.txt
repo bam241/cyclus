@@ -95,10 +95,16 @@ copy_when_diff(
 ############# end special configuration ####################
 ############################################################
 
+# This needs to be done before including PYTHON_INCLUDE_DIRS
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}")
+
+
 ###########################################################
 ############# cython configuration ########################
 ###########################################################
 if(Cython_FOUND)
+    INCLUDE_DIRECTORIES("${PYTHON_INCLUDE_DIRS}"
+        "${NUMPY_INCLUDE_DIRS}")
     # some setup
     set(cython_include_directories "")
     get_directory_property(cmake_include_directories
@@ -157,7 +163,6 @@ endif(Cython_FOUND)
 ######### build libcyclus #######################################
 #################################################################
 
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(CYCLUS_COIN_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/prog_solver.cc"

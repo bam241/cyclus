@@ -11,11 +11,9 @@ jobs:
             - run: apt-get -qq update; apt-get -y install git openssh-client
             - checkout
             - run:
-                command: mkdir -p /root/.local/lib/python3.7/site-packages
-            - run:
                 name: Build Docker Image
                 command: |
-                    python install.py -j 2 --build-type=Release --core-version 999999.999999 \
+                    python install.py -j 2 --prefix="/home/conda/.local" --build-type=Release --core-version 999999.999999 \
                     -DBLAS_LIBRARIES="/opt/conda/lib/libblas.so" \
                     -DLAPACK_LIBRARIES="/opt/conda/lib/liblapack.so"
             - run:
@@ -45,7 +43,7 @@ jobs:
 
     nosetest:
         docker:
-            - image: cyclus/cyclus-deps
+            - image: cyclus/cyclus-deps_py37
         working_directory: /root
         steps:
             - run:

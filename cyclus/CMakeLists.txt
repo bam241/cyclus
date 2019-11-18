@@ -28,6 +28,8 @@ set_source_files_properties(${CYCLUS_CYTHON_FILES}
 # Print include dir
 get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
 message("-- Include paths for ${CMAKE_CURRENT_SOURCE_DIR}: ${inc_dirs}")
+MESSAGE("CYCLUS PYTHON LIBS: ${LIBS}")
+
 
 foreach(file ${CYCLUS_CYTHON_FILES})
     get_filename_component(name ${file} NAME_WE)

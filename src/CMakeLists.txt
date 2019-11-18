@@ -1,6 +1,8 @@
 #################################################################
 ############# special file configuration ########################
 #################################################################
+
+set(LIBS_WITH_PY ${LIBS} ${PYTHON_LIBRARIES})
 if(COIN_FOUND)
   set(cyclus_has_coin 1)
 else()
@@ -220,7 +222,7 @@ SET_TARGET_PROPERTIES(cyclus
     INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib"
     )
 
-TARGET_LINK_LIBRARIES(cyclus dl ${LIBS})
+TARGET_LINK_LIBRARIES(cyclus dl ${LIBS_WITH_PY})
 
 INSTALL(
     TARGETS cyclus

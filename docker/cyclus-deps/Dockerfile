@@ -68,6 +68,7 @@ RUN conda update -y --all && \
                "cython<=0.28.5" \
                websockets \
                pprintpp \
+               pytest \
                && \
     conda clean -y --all
 ENV CC /opt/conda/bin/x86_64-conda_cos6-linux-gnu-gcc

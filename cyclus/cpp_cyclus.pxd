@@ -655,7 +655,7 @@ cdef extern from "agent.h" namespace "cyclus":
         void EnterNotify()
         void BuildNotify(Agent*)
         void DecomNotify(Agent*)
-        void Decommission()
+        void Decommission() except +
         void AdjustMatlPrefs(PrefMap[Material].type&)
         void AdjustProductPrefs(PrefMap[Product].type&)
         std_string schema()
@@ -672,6 +672,7 @@ cdef extern from "agent.h" namespace "cyclus":
         const int enter_time()
         const int get_lifetime "lifetime" ()
         void lifetime(int)
+        void lifetime_force(int)
         const int exit_time()
         const set[Agent*]& children()
 
@@ -681,6 +682,7 @@ cdef extern from "time_listener.h" namespace "cyclus":
     cdef cppclass TimeListener(Ider):
         void Tick()
         void Tock()
+        void Decision()
 
 
 cdef extern from "trade.h" namespace "cyclus":
@@ -724,6 +726,7 @@ cdef extern from "region.h" namespace "cyclus":
         void EnterNotify()
         void Tick()
         void Tock()
+        void Decision()
 
 
 cdef extern from "institution.h" namespace "cyclus":
@@ -737,6 +740,7 @@ cdef extern from "institution.h" namespace "cyclus":
         void EnterNotify()
         void Tick()
         void Tock()
+        void Decision()
 
 
 cdef extern from "facility.h" namespace "cyclus":
@@ -750,7 +754,8 @@ cdef extern from "facility.h" namespace "cyclus":
         void EnterNotify()
         void Tick()
         void Tock()
-        cpp_bool CheckDecommissionCondition()
+        void Decision()
+        cpp_bool CheckDecommissionCondition() except +
         set[RequestPortfolio[Material].Ptr] GetMatlRequests()
         set[RequestPortfolio[Product].Ptr] GetProductRequests()
         set[BidPortfolio[Material].Ptr] GetMatlBids(CommodMap[Material].type&)

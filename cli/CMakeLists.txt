@@ -2,12 +2,15 @@
 ##################################### begin cyclus app #######################################
 ##############################################################################################
 
-INCLUDE_DIRECTORIES(${CYCLUS_CORE_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(BEFORE ${CYCLUS_CORE_INCLUDE_DIRS})
 
 # Build the cyclus executable from the CYCLUS_SOURCE source files
 SET(CYCLUS_SOURCE ${CYCLUS_SOURCE}
     cyclus.cc
     )
+IF (APPLE)
+    SET(LIBS ${PYTHON_LIBRARIES} ${LIBS})
+ENDIF(APPLE)
 
 ADD_EXECUTABLE(cyclus_cli ${CYCLUS_SOURCE})
 set_target_properties(cyclus_cli PROPERTIES OUTPUT_NAME cyclus)

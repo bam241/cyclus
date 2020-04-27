@@ -25,7 +25,7 @@ MatlBuyPolicy::MatlBuyPolicy() :
 }
 
 MatlBuyPolicy::~MatlBuyPolicy() {
-  if (manager() != NULL) 
+  if (manager() != NULL)
     manager()->context()->UnregisterTrader(this);
 }
 
@@ -137,7 +137,8 @@ std::set<RequestPortfolio<Material>::Ptr> MatlBuyPolicy::GetMatlRequests() {
   std::set<RequestPortfolio<Material>::Ptr> ports;
   bool make_req = buf_->quantity() < req_when_under_ * buf_->capacity();
   double amt = TotalQty();
-  if (!make_req || amt < eps()) return ports;
+  if (!make_req || amt < eps())
+    return ports;
 
   bool excl = Excl();
   double req_amt = ReqQty();
@@ -147,17 +148,17 @@ std::set<RequestPortfolio<Material>::Ptr> MatlBuyPolicy::GetMatlRequests() {
   // one portfolio for each request
   for (int i = 0; i != n_req; i++) {
     RequestPortfolio<Material>::Ptr port(new RequestPortfolio<Material>());
-    std::map<int, std::vector<Request<Material>*>> grps;
-    // one request for each commodity
+    std::vector<Request<Material>*> mreqs;
     std::map<std::string, CommodDetail>::iterator it;
     for (it = commod_details_.begin(); it != commod_details_.end(); ++it) {
       std::string commod = it->first;
       CommodDetail d = it->second;
       LG(INFO3) << "  - one " << amt << " kg request of " << commod;
       Material::Ptr m = Material::CreateUntracked(req_amt, d.comp);
-      grps[i].push_back(port->AddRequest(m, this, commod, d.pref, excl));
+      Request<Material>* r = port->AddRequest(m, this, commod, d.pref, excl);
+      mreqs.push_back(r);
     }
-    port->AddMutualReqs(grps[i]);
+    port->AddMutualReqs(mreqs);
     ports.insert(port);
   }
 

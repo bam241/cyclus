@@ -11,7 +11,7 @@
 
 #include "agent.h"
 #include "any.hpp"
-#include "context.h"
+#include "cyclus_context.h"
 
 namespace cyclus {
 namespace toolkit {

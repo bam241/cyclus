@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "institution.h"
 #include "recorder.h"
 #include "region.h"

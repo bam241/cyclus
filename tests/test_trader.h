@@ -3,7 +3,7 @@
 
 #include "agent.h"
 #include "bid_portfolio.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "exchange_context.h"
 #include "material.h"
 #include "request_portfolio.h"

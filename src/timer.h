@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "exchange_manager.h"
 #include "product.h"
 #include "material.h"

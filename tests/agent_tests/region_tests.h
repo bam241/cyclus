@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 #include "agent_tests.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "region.h"
 #include "platform.h"
 #include "test_context.h"

@@ -1,4 +1,4 @@
-#include "context.h"
+#include "cyclus_context.h"
 
 #include <vector>
 #include <boost/uuid/uuid_generators.hpp>

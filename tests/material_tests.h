@@ -6,7 +6,7 @@
 #include "composition.h"
 #include "material.h"
 #include "env.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "pyhooks.h"
 #include "test_agents/test_facility.h"
 #include "recorder.h"

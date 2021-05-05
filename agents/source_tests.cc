@@ -3,7 +3,7 @@
 #include "source.h"
 
 #include "agent_tests.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "facility_tests.h"
 
 namespace cyclus {

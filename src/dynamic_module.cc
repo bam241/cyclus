@@ -4,7 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "env.h"
 #include "agent.h"
 #include "platform.h"

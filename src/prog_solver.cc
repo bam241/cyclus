@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "prog_translator.h"
 #include "greedy_solver.h"
 #include "solver_factory.h"

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <string>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "error.h"
 #include "logger.h"
 #include "resource.h"

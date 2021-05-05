@@ -8,7 +8,7 @@
 #include "capacity_constraint.h"
 #include "comp_math.h"
 #include "composition.h"
-#include "context.h"
+#include "cyclus_context.h"
 extern "C" {
 #include "cram.hpp"
 }

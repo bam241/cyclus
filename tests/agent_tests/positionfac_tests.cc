@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "agent_tests.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "facility_tests.h"
 
 using cyclus::TestPositionFac;

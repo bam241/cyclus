@@ -1,7 +1,7 @@
 #include "composition.h"
 
 #include "comp_math.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "decayer.h"
 #include "error.h"
 #include "recorder.h"

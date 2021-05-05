@@ -11,7 +11,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "agent.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "dynamic_module.h"
 #include "env.h"
 #include "platform.h"

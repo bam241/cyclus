@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #include "composition.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "cyc_limits.h"
 #include "env.h"
 #include "error.h"

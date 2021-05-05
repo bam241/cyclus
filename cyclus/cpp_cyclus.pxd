@@ -781,7 +781,7 @@ cdef extern from "dynamic_module.h" namespace "cyclus":
         std_string path() except +
 
 
-cdef extern from "context.h" namespace "cyclus":
+cdef extern from "cyclus_context.h" namespace "cyclus":
 
     cdef cppclass Context:
         Context(Timer*, Recorder*) except +

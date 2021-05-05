@@ -11,7 +11,7 @@
 
 #include "agent.h"
 #include "blob.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "cyc_std.h"
 #include "env.h"
 #include "error.h"

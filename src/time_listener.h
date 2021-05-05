@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "agent.h"
 
 namespace cyclus {

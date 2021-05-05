@@ -1,7 +1,7 @@
 #ifndef CYCLUS_TESTS_TEST_CONTEXT_H_
 #define CYCLUS_TESTS_TEST_CONTEXT_H_
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "recorder.h"
 #include "timer.h"
 #include "bid.h"

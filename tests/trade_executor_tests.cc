@@ -7,7 +7,7 @@
 
 #include "agent.h"
 #include "bid.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "material.h"
 #include "request.h"
 #include "resource_helpers.h"

@@ -4,7 +4,7 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include "query_backend.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "timer.h"
 #include "recorder.h"
 

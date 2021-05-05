@@ -1,7 +1,7 @@
 #include "xml_flat_loader.h"
 
 #include "agent.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "env.h"
 #include "error.h"
 #include "infile_tree.h"

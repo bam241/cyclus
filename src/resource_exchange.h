@@ -6,7 +6,7 @@
 #include <set>
 
 #include "bid_portfolio.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "exchange_context.h"
 #include "product.h"
 #include "material.h"

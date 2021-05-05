@@ -3,7 +3,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "resource.h"
 #include "res_tracker.h"
 

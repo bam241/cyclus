@@ -6,7 +6,7 @@
 #include "boost/filesystem.hpp"
 
 #include "agent.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "dynamic_module.h"
 #include "env.h"
 #include "error.h"

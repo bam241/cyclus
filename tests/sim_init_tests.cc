@@ -2,7 +2,7 @@
 
 #include "comp_math.h"
 #include "composition.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "facility.h"
 #include "material.h"
 #include "pyhooks.h"

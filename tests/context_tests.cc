@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "recorder.h"
 #include "test_agents/test_facility.h"
 #include "timer.h"

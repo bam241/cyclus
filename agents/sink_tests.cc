@@ -2,7 +2,7 @@
 
 #include "sink.h"
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "facility_tests.h"
 #include "agent_tests.h"
 

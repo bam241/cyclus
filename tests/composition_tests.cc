@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "composition.h"
 #include "comp_math.h"
 #include "env.h"

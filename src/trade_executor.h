@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "trade.h"
 #include "trader.h"
 #include "trader_management.h"

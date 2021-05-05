@@ -3,7 +3,7 @@
 #include "k_facility.h"
 
 #include "agent_tests.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "facility_tests.h"
 
 using cyclus::KFacility;

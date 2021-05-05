@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "exchange_graph.h"
 
 namespace cyclus {

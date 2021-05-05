@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "context.h"
+#include "cyclus_context.h"
 #include "facility.h"
 #include "greedy_preconditioner.h"
 #include "greedy_solver.h"

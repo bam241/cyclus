@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "composition.h"
-#include "context.h"
+#include "cyclus_context.h"
 #include "env.h"
 #include "material.h"
 #include "pyne.h"

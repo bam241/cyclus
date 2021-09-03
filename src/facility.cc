@@ -13,14 +13,14 @@
 
 namespace cyclus {
 
-Facility::Facility(Context* ctx) : Trader(this), Agent(ctx) {
+Facility::Facility(Context* ctx) : Trader(Agent::shared_from_this()), Agent(ctx) {
   kind_ = std::string("Facility");
 }
 
 Facility::~Facility() {}
 
 
-void Facility::InitFrom(std::shared_ptr<Facility> m) {
+void Facility::InitFrom(Facility* m) {
   Agent::InitFrom(m);
 }
 
@@ -30,7 +30,7 @@ void Facility::Build(std::shared_ptr<Agent> parent) {
 
 void Facility::EnterNotify() {
   Agent::EnterNotify();
-  context()->RegisterTrader(dynamic_cast<Trader*>(this));
+  context()->RegisterTrader(std::dynamic_pointer_cast<Trader>(Trader::shared_from_this()));
   context()->RegisterTimeListener(this);
 }
 
@@ -47,7 +47,7 @@ void Facility::Decommission() {
     throw Error("Cannot decommission " + prototype());
   }
 
-  context()->UnregisterTrader(dynamic_cast<Trader*>(this));
+  context()->UnregisterTrader(std::dynamic_pointer_cast<Trader>(Trader::shared_from_this()));
   context()->UnregisterTimeListener(this);
   Agent::Decommission();
 }

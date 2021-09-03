@@ -57,8 +57,8 @@ TEST_F(NullRegionTest, Tock) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cyclus::Agent* NullRegionConstructor(cyclus::Context* ctx) {
-  return new NullRegion(ctx);
+std::shared_ptr<cyclus::Agent> NullRegionConstructor(cyclus::Context* ctx) {
+  return std::shared_ptr<cyclus::Agent>(new NullRegion(ctx));
 }
 
 // Required to get functionality in cyclus agent unit tests library

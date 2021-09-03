@@ -553,7 +553,7 @@ Material::Ptr SimInit::LoadMaterial(Context* ctx, QueryableBackend* b, int state
 
   // create the composition and material
   Composition::Ptr comp = LoadComposition(b, stateid);
-  std::shared_ptr<Agent> dummy = new Dummy(ctx);
+  std::shared_ptr<Agent> dummy(new Dummy(ctx));
   Material::Ptr mat = Material::Create(dummy, qty, comp);
   mat->prev_decay_time_ = prev_decay;
   ctx->DelAgent(dummy);
@@ -594,7 +594,7 @@ Product::Ptr SimInit::LoadProduct(Context* ctx, QueryableBackend* b, int state_i
   // set static quality-stateid map to have same vals as db
   Product::qualids_[quality] = stateid;
 
-  std::shared_ptr<Agent> dummy = new Dummy(ctx);
+  std::shared_ptr<Agent> dummy(new Dummy(ctx));
   Product::Ptr r = Product::Create(dummy, qty, quality);
   ctx->DelAgent(dummy);
   return r;

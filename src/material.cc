@@ -14,7 +14,7 @@ const ResourceType Material::kType = "Material";
 
 Material::~Material() {}
 
-Material::Ptr Material::Create(Agent* creator, double quantity,
+Material::Ptr Material::Create(std::shared_ptr<Agent> creator, double quantity,
                                Composition::Ptr c) {
   Material::Ptr m(new Material(creator->context(), quantity, c));
   m->tracker_.Create(creator);

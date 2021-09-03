@@ -85,7 +85,7 @@ class Facility : public TimeListener, public Agent, public Trader {
   /// Any facility subclassing facility agent should invoke their own InitFrom
   /// method, calling Facility's first!
   /// @param m the agent to copy from
-  void InitFrom(std::shared_ptr<Facility> m);
+  void InitFrom(Facility* m);
 
   /// @brief builds the facility in the simulation
   /// @param parent the parent of this facility

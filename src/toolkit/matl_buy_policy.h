@@ -79,12 +79,12 @@ class MatlBuyPolicy : public Trader {
   /// @warning, (s, S) policy values are ambiguous for buffers with a capacity
   /// in (0, 1]. However that is a rare case.
   /// @{
-  MatlBuyPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name);
-  MatlBuyPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name,
+  MatlBuyPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name);
+  MatlBuyPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name,
                       double throughput);
-  MatlBuyPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name,
+  MatlBuyPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name,
                       double fill_to, double req_when_under);
-  MatlBuyPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name,
+  MatlBuyPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name,
                       double throughput, double fill_to,
                       double req_when_under, double quantize);
   /// @}

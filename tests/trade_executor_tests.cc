@@ -34,10 +34,10 @@ using cyclus::Trader;
 class TradeExecutorTests : public ::testing::Test {
  public:
   TestContext tc;
-  TestTrader* s1;
-  TestTrader* s2;
-  TestTrader* r1;
-  TestTrader* r2;
+  std::shared_ptr<TestTrader> s1;
+  std::shared_ptr<TestTrader> s2;
+  std::shared_ptr<TestTrader> r1;
+  std::shared_ptr<TestTrader> r2;
   TestObjFactory fac;
 
   double amt;
@@ -51,10 +51,10 @@ class TradeExecutorTests : public ::testing::Test {
 
   virtual void SetUp() {
     amt = 4.5;  // some magic number..
-    s1 = new TestTrader(tc.get(), &fac);
-    s2 = new TestTrader(tc.get(), &fac);
-    r1 = new TestTrader(tc.get(), &fac);
-    r2 = new TestTrader(tc.get(), &fac);
+    s1 = std::shared_ptr<TestTrader>(new TestTrader(tc.get(), &fac));
+    s2 = std::shared_ptr<TestTrader>(new TestTrader(tc.get(), &fac));
+    r1 = std::shared_ptr<TestTrader>(new TestTrader(tc.get(), &fac));
+    r2 = std::shared_ptr<TestTrader>(new TestTrader(tc.get(), &fac));
 
     req1 = Request<Material>::Create(fac.mat, r1);
     req2 = Request<Material>::Create(fac.mat, r2);
@@ -78,10 +78,6 @@ class TradeExecutorTests : public ::testing::Test {
     delete bid1;
     delete req2;
     delete req1;
-    delete r2;
-    delete r1;
-    delete s2;
-    delete s1;
   }
 };
 
@@ -89,17 +85,17 @@ class TradeExecutorTests : public ::testing::Test {
 TEST_F(TradeExecutorTests, SupplierGrouping) {
   TradeExecutor<Material> exec(trades);
   GroupTradesBySupplier(exec.trade_ctx(), trades);
-  std::map<Trader*, std::vector< Trade<Material> > > obs =
+  std::map<std::shared_ptr<Trader>, std::vector< Trade<Material> > > obs =
       exec.trade_ctx().trades_by_supplier;
-  std::map<Trader*, std::vector< Trade<Material> > > exp;
+  std::map<std::shared_ptr<Trader>, std::vector< Trade<Material> > > exp;
   exp[s1].push_back(t1);
   exp[s2].push_back(t2);
   exp[s2].push_back(t3);
 
   EXPECT_EQ(obs, exp);
 
-  std::set<Trader*> requesters;
-  std::set<Trader*> suppliers;
+  std::set<std::shared_ptr<Trader>> requesters;
+  std::set<std::shared_ptr<Trader>> suppliers;
   requesters.insert(r1);
   requesters.insert(r2);
   suppliers.insert(s1);
@@ -114,7 +110,7 @@ TEST_F(TradeExecutorTests, SupplierResponses) {
   GroupTradesBySupplier(exec.trade_ctx(), trades);
   GetTradeResponses(exec.trade_ctx());
 
-  std::map<Trader*,
+  std::map<std::shared_ptr<Trader>,
            std::vector< std::pair<Trade<Material>, Material::Ptr> > >
       by_req_obs = exec.trade_ctx().trades_by_requester;
   EXPECT_NE(std::find(by_req_obs[r1].begin(),
@@ -130,7 +126,7 @@ TEST_F(TradeExecutorTests, SupplierResponses) {
                       std::make_pair(t3, fac.mat)),
             by_req_obs[r2].end());
 
-  std::map<std::pair<Trader*, Trader*>,
+  std::map<std::pair<std::shared_ptr<Trader>, std::shared_ptr<Trader>>,
            std::vector< std::pair<Trade<Material>, Material::Ptr> > >
       all_t_obs = exec.trade_ctx().all_trades;
   EXPECT_NE(std::find(all_t_obs[std::make_pair(s1, r1)].begin(),

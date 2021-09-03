@@ -26,7 +26,7 @@ MatlBuyPolicy::MatlBuyPolicy() :
 
 MatlBuyPolicy::~MatlBuyPolicy() {
   if (manager() != NULL)
-    manager()->context()->UnregisterTrader(this);
+    manager()->context()->UnregisterTrader(shared_from_this());
 }
 
 void MatlBuyPolicy::set_fill_to(double x) {
@@ -53,7 +53,7 @@ void MatlBuyPolicy::set_throughput(double x) {
   throughput_ = x;
 }
 
-MatlBuyPolicy& MatlBuyPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlBuyPolicy& MatlBuyPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                    std::string name) {
   Trader::manager_ = manager;
   buf_ = buf;
@@ -61,7 +61,7 @@ MatlBuyPolicy& MatlBuyPolicy::Init(Agent* manager, ResBuf<Material>* buf,
   return *this;
 }
 
-MatlBuyPolicy& MatlBuyPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlBuyPolicy& MatlBuyPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                    std::string name, double throughput) {
   Trader::manager_ = manager;
   buf_ = buf;
@@ -70,7 +70,7 @@ MatlBuyPolicy& MatlBuyPolicy::Init(Agent* manager, ResBuf<Material>* buf,
   return *this;
 }
 
-MatlBuyPolicy& MatlBuyPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlBuyPolicy& MatlBuyPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                    std::string name,
                                    double fill_to, double req_when_under) {
   Trader::manager_ = manager;
@@ -81,7 +81,7 @@ MatlBuyPolicy& MatlBuyPolicy::Init(Agent* manager, ResBuf<Material>* buf,
   return *this;
 }
 
-MatlBuyPolicy& MatlBuyPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlBuyPolicy& MatlBuyPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                    std::string name, double throughput,
                                    double fill_to, double req_when_under,
                                    double quantize) {
@@ -120,7 +120,7 @@ void MatlBuyPolicy::Start() {
     ss << "No manager set on Buy Policy " << name_;
     throw ValueError(ss.str());
   }
-  manager()->context()->RegisterTrader(this);
+  manager()->context()->RegisterTrader((shared_from_this()));
 }
 
 void MatlBuyPolicy::Stop() {
@@ -129,7 +129,7 @@ void MatlBuyPolicy::Stop() {
     ss << "No manager set on Buy Policy " << name_;
     throw ValueError(ss.str());
   }
-  manager()->context()->UnregisterTrader(this);
+  manager()->context()->UnregisterTrader(shared_from_this());
 }
 
 std::set<RequestPortfolio<Material>::Ptr> MatlBuyPolicy::GetMatlRequests() {
@@ -155,7 +155,7 @@ std::set<RequestPortfolio<Material>::Ptr> MatlBuyPolicy::GetMatlRequests() {
       CommodDetail d = it->second;
       LG(INFO3) << "  - one " << amt << " kg request of " << commod;
       Material::Ptr m = Material::CreateUntracked(req_amt, d.comp);
-      Request<Material>* r = port->AddRequest(m, this, commod, d.pref, excl);
+      Request<Material>* r = port->AddRequest(m, shared_from_this(), commod, d.pref, excl);
       mreqs.push_back(r);
     }
     port->AddMutualReqs(mreqs);

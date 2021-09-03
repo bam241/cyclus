@@ -62,7 +62,7 @@ class TestTrader : public TestFacility {
     } else {
       std::set<RequestPortfolio<Material>::Ptr> ports;
       RequestPortfolio<Material>::Ptr port(new RequestPortfolio<Material>());
-      req = port->AddRequest(obj_fac->mat, this, obj_fac->commod);  // exp request
+      req = port->AddRequest(obj_fac->mat, Trader::shared_from_this(), obj_fac->commod);  // exp request
       reqport = port;
       ports.insert(port);
       return ports;
@@ -79,7 +79,7 @@ class TestTrader : public TestFacility {
 
       std::set<BidPortfolio<Material>::Ptr> ports;
       BidPortfolio<Material>::Ptr port(new BidPortfolio<Material>());
-      bid = port->AddBid(req, obj_fac->mat, this);  // exp bid
+      bid = port->AddBid(req, obj_fac->mat, Trader::shared_from_this());  // exp bid
       bidport = port;
       ports.insert(port);
       return ports;

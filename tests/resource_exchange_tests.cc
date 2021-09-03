@@ -113,8 +113,8 @@ class Bidder: public TestFacility {
 class ResourceExchangeTests: public ::testing::Test {
  protected:
   TestContext tc;
-  Requester* reqr;
-  Bidder* bidr;
+  std::shared_ptr<Requester> reqr;
+  std::shared_ptr<Bidder> bidr;
   ResourceExchange<Material>* exchng;
   string commod;
   double pref;
@@ -131,7 +131,7 @@ class ResourceExchangeTests: public ::testing::Test {
     double qty = 1.0;
     mat = Material::CreateUntracked(qty, comp);
 
-    reqr = new Requester(tc.get());
+    reqr = std::shared_ptr<Requester>(new Requester(tc.get()));
     exchng = new ResourceExchange<Material>(tc.get());
   }
 
@@ -146,9 +146,9 @@ TEST_F(ResourceExchangeTests, Requests) {
   req = rp->AddRequest(mat, reqr, commod, pref);
   reqr->port_ = rp;
 
-  Facility* clone = dynamic_cast<Facility*>(reqr->Clone());
+  std::shared_ptr<Facility> clone = std::dynamic_pointer_cast<Facility>(std::shared_ptr<Agent>(reqr->Clone()));
   clone->Build(NULL);
-  Requester* rcast = dynamic_cast<Requester*>(clone);
+  std::shared_ptr<Requester> rcast = std::dynamic_pointer_cast<Requester>(clone);
   EXPECT_EQ(0, rcast->req_ctr_);
   exchng->AddAllRequests();
   EXPECT_EQ(1, rcast->req_ctr_);
@@ -180,7 +180,7 @@ TEST_F(ResourceExchangeTests, Bids) {
   const std::vector<Request<Material>*>& reqs = ctx.commod_requests[commod];
   EXPECT_EQ(2, reqs.size());
 
-  Bidder* bidr = new Bidder(tc.get(), commod);
+  std::shared_ptr<Bidder> bidr = std::shared_ptr<Bidder>(new Bidder(tc.get(), commod));
 
   BidPortfolio<Material>::Ptr bp(new BidPortfolio<Material>());
   bid = bp->AddBid(req, mat, bidr);
@@ -192,9 +192,9 @@ TEST_F(ResourceExchangeTests, Bids) {
 
   bidr->port_ = bp;
 
-  Facility* clone = dynamic_cast<Facility*>(bidr->Clone());
+  std::shared_ptr<Facility> clone = std::dynamic_pointer_cast<Facility>(std::shared_ptr<Agent>(bidr->Clone()));
   clone->Build(NULL);
-  Bidder* bcast = dynamic_cast<Bidder*>(clone);
+  std::shared_ptr<Bidder> bcast = std::dynamic_pointer_cast<Bidder>(clone);
 
   EXPECT_EQ(0, bcast->bid_ctr_);
   exchng->AddAllBids();
@@ -225,20 +225,20 @@ TEST_F(ResourceExchangeTests, Bids) {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST_F(ResourceExchangeTests, PrefCalls) {
-  Facility* parent = dynamic_cast<Facility*>(reqr->Clone());
-  Facility* child = dynamic_cast<Facility*>(reqr->Clone());
+  std::shared_ptr<Facility> parent = std::dynamic_pointer_cast<Facility>(std::shared_ptr<Agent>(reqr->Clone()));
+  std::shared_ptr<Facility> child = std::dynamic_pointer_cast<Facility>(std::shared_ptr<Agent>(reqr->Clone()));
   parent->Build(NULL);
   child->Build(parent);
 
-  Requester* pcast = dynamic_cast<Requester*>(parent);
-  Requester* ccast = dynamic_cast<Requester*>(child);
+  std::shared_ptr<Requester> pcast = std::dynamic_pointer_cast<Requester>(parent);
+  std::shared_ptr<Requester> ccast = std::dynamic_pointer_cast<Requester>(child);
 
   ASSERT_TRUE(pcast != NULL);
   ASSERT_TRUE(ccast != NULL);
   ASSERT_TRUE(pcast->parent() == NULL);
-  ASSERT_TRUE(ccast->parent() == dynamic_cast<Agent*>(pcast));
-  ASSERT_TRUE(pcast->manager() == dynamic_cast<Agent*>(pcast));
-  ASSERT_TRUE(ccast->manager() == dynamic_cast<Agent*>(ccast));
+  ASSERT_TRUE(ccast->parent() == std::dynamic_pointer_cast<Agent>(pcast));
+  ASSERT_TRUE(pcast->manager() == std::dynamic_pointer_cast<Agent>(pcast));
+  ASSERT_TRUE(ccast->manager() == std::dynamic_pointer_cast<Agent>(ccast));
 
   // doin a little magic to simulate each requester making their own request
   RequestPortfolio<Material>::Ptr rp1(new RequestPortfolio<Material>());
@@ -270,13 +270,13 @@ TEST_F(ResourceExchangeTests, PrefCalls) {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST_F(ResourceExchangeTests, PrefValues) {
-  Facility* parent = dynamic_cast<Facility*>(reqr->Clone());
-  Facility* child = dynamic_cast<Facility*>(reqr->Clone());
+  std::shared_ptr<Facility> parent = std::dynamic_pointer_cast<Facility>(std::shared_ptr<Agent>(reqr->Clone()));
+  std::shared_ptr<Facility> child = std::dynamic_pointer_cast<Facility>(std::shared_ptr<Agent>(reqr->Clone()));
   parent->Build(NULL);
   child->Build(parent);
 
-  Requester* pcast = dynamic_cast<Requester*>(parent);
-  Requester* ccast = dynamic_cast<Requester*>(child);
+  std::shared_ptr<Requester> pcast = std::dynamic_pointer_cast<Requester>(parent);
+  std::shared_ptr<Requester> ccast = std::dynamic_pointer_cast<Requester>(child);
 
   // doin a little magic to simulate each requester making their own request
   RequestPortfolio<Material>::Ptr rp1(new RequestPortfolio<Material>());
@@ -286,7 +286,7 @@ TEST_F(ResourceExchangeTests, PrefValues) {
   Request<Material>* creq = rp2->AddRequest(mat, ccast, commod, pref);
   ccast->port_ = rp2;
 
-  Bidder* bidr = new Bidder(tc.get(), commod);
+  std::shared_ptr<Bidder> bidr(new Bidder(tc.get(), commod));
 
   BidPortfolio<Material>::Ptr bp(new BidPortfolio<Material>());
   Bid<Material>* pbid = bp->AddBid(preq, mat, bidr);
@@ -297,7 +297,7 @@ TEST_F(ResourceExchangeTests, PrefValues) {
   bids.push_back(cbid);
   bidr->port_ = bp;
 
-  Facility* bclone = dynamic_cast<Facility*>(bidr->Clone());
+  std::shared_ptr<Facility> bclone = std::dynamic_pointer_cast<Facility>(std::shared_ptr<Agent>(bidr->Clone()));
   bclone->Build(NULL);
 
   EXPECT_NO_THROW(exchng->AddAllRequests());

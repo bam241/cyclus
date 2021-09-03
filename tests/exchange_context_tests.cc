@@ -34,8 +34,8 @@ using test_helpers::get_mat;
 class ExchangeContextTests: public ::testing::Test {
  protected:
   TestContext tc;
-  TestFacility* fac1;
-  TestFacility* fac2;
+  std::shared_ptr<TestFacility> fac1;
+  std::shared_ptr<TestFacility> fac2;
   Request<Resource>* req1;
   Request<Resource>* req2;
   RequestPortfolio<Resource>::Ptr rp1, rp2;
@@ -43,8 +43,8 @@ class ExchangeContextTests: public ::testing::Test {
   double pref;
 
   virtual void SetUp() {
-    fac1 = new TestFacility(tc.get());
-    fac2 = new TestFacility(tc.get());
+    fac1 = std::shared_ptr<TestFacility>(new TestFacility(tc.get()));
+    fac2 = std::shared_ptr<TestFacility>(new TestFacility(tc.get()));
 
     pref = 0.5;
     commod1 = "commod1";
@@ -56,8 +56,6 @@ class ExchangeContextTests: public ::testing::Test {
   }
 
   virtual void TearDown() {
-    delete fac1;
-    delete fac2;
   }
 };
 
@@ -86,7 +84,7 @@ TEST_F(ExchangeContextTests, AddRequest1) {
   EXPECT_EQ(vr, context.commod_requests[commod1]);
 
   EXPECT_EQ(1, context.requesters.size());
-  std::set<Trader*> requesters;
+  std::set<std::shared_ptr<Trader>> requesters;
   requesters.insert(fac1);
   EXPECT_EQ(requesters, context.requesters);
 }
@@ -156,7 +154,7 @@ TEST_F(ExchangeContextTests, AddBid1) {
   EXPECT_EQ(vr, context.bids_by_request[req1]);
 
   EXPECT_EQ(1, context.bidders.size());
-  std::set<Trader*> bidders;
+  std::set<std::shared_ptr<Trader>> bidders;
   bidders.insert(fac1);
   EXPECT_EQ(bidders, context.bidders);
 
@@ -219,7 +217,7 @@ TEST_F(ExchangeContextTests, AddBid2) {
   EXPECT_EQ(vreq2, context.bids_by_request[req2]);
 
   EXPECT_EQ(2, context.bidders.size());
-  std::set<Trader*> bidders;
+  std::set<std::shared_ptr<Trader>> bidders;
   bidders.insert(fac1);
   bidders.insert(fac2);
   EXPECT_EQ(bidders, context.bidders);

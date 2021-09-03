@@ -23,7 +23,7 @@ MatlSellPolicy::MatlSellPolicy() :
 
 MatlSellPolicy::~MatlSellPolicy() {
   if (manager() != NULL)
-    manager()->context()->UnregisterTrader(this);
+    manager()->context()->UnregisterTrader(shared_from_this());
 }
 
 void MatlSellPolicy::set_quantize(double x) {
@@ -40,7 +40,7 @@ void MatlSellPolicy::set_ignore_comp(bool x) {
   ignore_comp_ = x;
 }
 
-MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlSellPolicy& MatlSellPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                      std::string name) {
   Trader::manager_ = manager;
   buf_ = buf;
@@ -48,7 +48,7 @@ MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
   return *this;
 }
 
-MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlSellPolicy& MatlSellPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                      std::string name, double throughput) {
   Trader::manager_ = manager;
   buf_ = buf;
@@ -57,7 +57,7 @@ MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
   return *this;
 }
 
-MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlSellPolicy& MatlSellPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                      std::string name, bool ignore_comp) {
   Trader::manager_ = manager;
   buf_ = buf;
@@ -66,7 +66,7 @@ MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
   return *this;
 }
 
-MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlSellPolicy& MatlSellPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                      std::string name, double throughput,
                                      bool ignore_comp) {
   Trader::manager_ = manager;
@@ -77,7 +77,7 @@ MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
   return *this;
 }
 
-MatlSellPolicy& MatlSellPolicy::Init(Agent* manager, ResBuf<Material>* buf,
+MatlSellPolicy& MatlSellPolicy::Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf,
                                      std::string name, double throughput,
                                      bool ignore_comp, double quantize) {
   Trader::manager_ = manager;
@@ -100,7 +100,7 @@ void MatlSellPolicy::Start() {
     ss << "No manager set on Sell Policy " << name_;
     throw ValueError(ss.str());
   }
-  manager()->context()->RegisterTrader(this);
+  manager()->context()->RegisterTrader(shared_from_this());
 }
 
 void MatlSellPolicy::Stop() {
@@ -109,7 +109,7 @@ void MatlSellPolicy::Stop() {
     ss << "No manager set on Sell Policy " << name_;
     throw ValueError(ss.str());
   }
-  manager()->context()->UnregisterTrader(this);
+  manager()->context()->UnregisterTrader(shared_from_this());
 }
 
 
@@ -161,7 +161,7 @@ std::set<BidPortfolio<Material>::Ptr> MatlSellPolicy::GetMatlBids(
         offer = ignore_comp_ ? \
                 Material::CreateUntracked(qty, req->target()->comp()) : \
                 Material::CreateUntracked(qty, m->comp());
-        port->AddBid(req, offer, this, excl);
+        port->AddBid(req, offer, Trader::shared_from_this(), excl);
         LG(INFO3) << "  - bid " << qty << " kg on a request for " << commod;
       }
     }

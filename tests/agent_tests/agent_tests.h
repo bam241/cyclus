@@ -2,6 +2,7 @@
 #define CYCLUS_TESTS_AGENT_TESTS_AGENT_TESTS_H_
 
 #include <gtest/gtest.h>
+#include <memory>
 
 #include "agent.h"
 #include "platform.h"
@@ -16,7 +17,7 @@ using ::testing::Values;
 // Inside the test body, fixture constructor, SetUp(), and TearDown() we
 // can refer to the test parameter by GetParam().  In this case, the test
 // parameter is a pointer to a concrete Agent instance
-typedef cyclus::Agent* AgentConstructor(cyclus::Context* ctx);
+typedef std::shared_ptr<cyclus::Agent> AgentConstructor(cyclus::Context* ctx);
 
 class AgentTests : public TestWithParam<AgentConstructor*> {
  public:
@@ -26,7 +27,7 @@ class AgentTests : public TestWithParam<AgentConstructor*> {
   virtual void TearDown() {}
 
  protected:
-  cyclus::Agent* agent_;
+  std::shared_ptr<cyclus::Agent> agent_;
   cyclus::TestContext tc_;
 };
 

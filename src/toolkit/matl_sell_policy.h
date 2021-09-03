@@ -74,14 +74,14 @@ class MatlSellPolicy : public Trader {
   /// exclusive, integral quantize kg bids. Otherwise, single bids will
   /// be sent matching the requested quantity.
   /// @{
-  MatlSellPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name);
-  MatlSellPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name,
+  MatlSellPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name);
+  MatlSellPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name,
                        double throughput);
-  MatlSellPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name,
+  MatlSellPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name,
                        bool ignore_comp);
-  MatlSellPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name,
+  MatlSellPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name,
                        double throughput, bool ignore_comp);
-  MatlSellPolicy& Init(Agent* manager, ResBuf<Material>* buf, std::string name,
+  MatlSellPolicy& Init(std::shared_ptr<Agent> manager, ResBuf<Material>* buf, std::string name,
                        double throughput, bool ignore_comp,
                        double quantize);
   /// @}

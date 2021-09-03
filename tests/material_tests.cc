@@ -231,7 +231,7 @@ TEST_F(MaterialTest, DecayLazy) {
   SimInfo si(100, 2015, 1, "", "lazy");
   cyclus::Context ctx(&ti, &rec);
   ctx.InitSim(si);
-  Agent* a = new TestFacility(&ctx);
+  std::shared_ptr<Agent> a(new TestFacility(&ctx));
   Material::Ptr m = Material::Create(a, 1000, diff_comp_);
 
   cyclus::toolkit::MatQuery orig(m);
@@ -330,7 +330,7 @@ TEST_F(MaterialTest, DecayCustomTimeStep) {
   si.dt = custom_timestep;
   cyclus::Context ctx(&ti, &rec);
   ctx.InitSim(si);
-  Agent* a = new TestFacility(&ctx);
+  std::shared_ptr<Agent> a(new TestFacility(&ctx));
 
   CompMap v;
   v[id("Cs137")] = 1;
@@ -363,7 +363,7 @@ TEST_F(MaterialTest, TransmutePrevDecay) {
   SimInfo si(10, 2015, 1, "", "manual");
   cyclus::Context ctx(&ti, &rec);
   ctx.InitSim(si);
-  Agent* a = new TestFacility(&ctx);
+  std::shared_ptr<Agent> a(new TestFacility(&ctx));
   Material::Ptr m = Material::Create(a, 1000, diff_comp_);
 
   // run the simulation clock forward

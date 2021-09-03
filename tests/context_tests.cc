@@ -63,11 +63,12 @@ int DonutShop::destruct_count = 0;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST_F(ContextTests, EnterLeave) {
   EXPECT_TRUE(ctx->traders().empty());
-  Agent* clone = fac->Clone();
+  Agent* clone_ptr = fac->Clone();
+  std::shared_ptr<Agent> clone(clone_ptr);
   EXPECT_EQ(ctx->n_prototypes(TestFacility::proto_name()), 0);
   EXPECT_EQ(ctx->n_specs(TestFacility::spec()), 0);
   clone->Build(NULL);
-  Trader* exr = dynamic_cast<Trader*>(clone);
+  std::shared_ptr<Trader> exr = std::dynamic_pointer_cast<Trader>(clone);
   EXPECT_EQ(ctx->traders().size(), 1);
   EXPECT_EQ(*ctx->traders().begin(), exr);
   EXPECT_EQ(ctx->n_prototypes(TestFacility::proto_name()), 1);
@@ -85,14 +86,14 @@ TEST_F(ContextTests, CreateAgent) {
   Recorder rec;
   Context* ctx = new Context(&ti, &rec);
 
-  Agent* m1 = new DonutShop(ctx, "old fashion");
+  std::shared_ptr<Agent> m1(new DonutShop(ctx, "old fashion"));
   ctx->AddPrototype("dunkin donuts", m1);
-  Agent* m2 = new DonutShop(ctx, "apple fritter");
+  std::shared_ptr<Agent> m2(new DonutShop(ctx, "apple fritter"));
   ctx->AddPrototype("krispy kreme", m2);
-  Agent* m3 = new DonutShop(ctx, "raspberry filled");
+  std::shared_ptr<Agent> m3(new DonutShop(ctx, "raspberry filled"));
   ctx->AddPrototype("greenbush bakery", m3);
 
-  DonutShop* d;
+  std::shared_ptr<DonutShop> d;
   ASSERT_NO_THROW(d = ctx->CreateAgent<DonutShop>("dunkin donuts"));
   EXPECT_EQ("old fashion", d->donut_of_the_day);
   EXPECT_NE(d, m1);
@@ -114,9 +115,9 @@ TEST_F(ContextTests, DoubleAgentNameThrow) {
   Recorder rec;
   Context* ctx = new Context(&ti, &rec);
 
-  Agent* m1 = new DonutShop(ctx, "old fashion");
+  std::shared_ptr<Agent> m1(new DonutShop(ctx, "old fashion"));
   ctx->AddPrototype("dunkin donuts", m1);
-  Agent* m2 = new DonutShop(ctx, "apple fritter");
+  std::shared_ptr<Agent> m2(new DonutShop(ctx, "apple fritter"));
   ASSERT_THROW(ctx->AddPrototype("dunkin donuts", m2),
                cyclus::KeyError);
   bool overwrite = true;

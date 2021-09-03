@@ -33,7 +33,7 @@ template <class T> class Bid {
   inline static Bid<T>* Create(Request<T>* request,
                                boost::shared_ptr<T>
                                    offer,
-                               Trader* bidder,
+                               std::shared_ptr<Trader> bidder,
                                typename BidPortfolio<T>::Ptr portfolio,
                                bool exclusive,
                                double preference) {
@@ -49,7 +49,7 @@ template <class T> class Bid {
   inline static Bid<T>* Create(Request<T>* request,
                                boost::shared_ptr<T>
                                    offer,
-                               Trader* bidder,
+                               std::shared_ptr<Trader> bidder,
                                typename BidPortfolio<T>::Ptr portfolio,
                                bool exclusive = false) {
     return Create(request, offer, bidder, portfolio, exclusive,
@@ -58,14 +58,14 @@ template <class T> class Bid {
   /// @brief a factory method for a bid for a bid without a portfolio
   /// @warning this factory should generally only be used for testing
   inline static Bid<T>* Create(Request<T>* request, boost::shared_ptr<T> offer,
-                               Trader* bidder, bool exclusive,
+                               std::shared_ptr<Trader> bidder, bool exclusive,
                                double preference) {
     return new Bid<T>(request, offer, bidder, exclusive, preference);
   }
   /// @brief a factory method for a bid for a bid without a portfolio
   /// @warning this factory should generally only be used for testing
   inline static Bid<T>* Create(Request<T>* request, boost::shared_ptr<T> offer,
-                               Trader* bidder, bool exclusive = false) {
+                               std::shared_ptr<Trader> bidder, bool exclusive = false) {
     return Create(request, offer, bidder, exclusive,
                   std::numeric_limits<double>::quiet_NaN());
   }
@@ -77,7 +77,7 @@ template <class T> class Bid {
   inline boost::shared_ptr<T> offer() const { return offer_; }
 
   /// @return the agent responding the request
-  inline Trader* bidder() const { return bidder_; }
+  inline std::shared_ptr<Trader> bidder() const { return bidder_; }
 
   /// @return the portfolio of which this bid is a part
   inline typename BidPortfolio<T>::Ptr portfolio() { return portfolio_.lock(); }
@@ -90,7 +90,7 @@ template <class T> class Bid {
 
  private:
   /// @brief constructors are private to require use of factory methods
-  Bid(Request<T>* request, boost::shared_ptr<T> offer, Trader* bidder,
+  Bid(Request<T>* request, boost::shared_ptr<T> offer, std::shared_ptr<Trader> bidder,
       bool exclusive, double preference)
       : request_(request),
         offer_(offer),
@@ -98,7 +98,7 @@ template <class T> class Bid {
         exclusive_(exclusive),
         preference_(preference) {}
   /// @brief constructors are private to require use of factory methods
-  Bid(Request<T>* request, boost::shared_ptr<T> offer, Trader* bidder,
+  Bid(Request<T>* request, boost::shared_ptr<T> offer, std::shared_ptr<Trader> bidder,
       bool exclusive = false)
       : request_(request),
         offer_(offer),
@@ -106,7 +106,7 @@ template <class T> class Bid {
         exclusive_(exclusive),
         preference_(std::numeric_limits<double>::quiet_NaN()) {}
 
-  Bid(Request<T>* request, boost::shared_ptr<T> offer, Trader* bidder,
+  Bid(Request<T>* request, boost::shared_ptr<T> offer, std::shared_ptr<Trader> bidder,
       typename BidPortfolio<T>::Ptr portfolio, bool exclusive, double preference)
       : request_(request),
         offer_(offer),
@@ -115,7 +115,7 @@ template <class T> class Bid {
         exclusive_(exclusive),
         preference_(preference) {}
 
-  Bid(Request<T>* request, boost::shared_ptr<T> offer, Trader* bidder,
+  Bid(Request<T>* request, boost::shared_ptr<T> offer, std::shared_ptr<Trader> bidder,
       typename BidPortfolio<T>::Ptr portfolio, bool exclusive = false)
       : request_(request),
         offer_(offer),
@@ -126,7 +126,7 @@ template <class T> class Bid {
 
   Request<T>* request_;
   boost::shared_ptr<T> offer_;
-  Trader* bidder_;
+  std::shared_ptr<Trader> bidder_;
   boost::weak_ptr<BidPortfolio<T>> portfolio_;
   bool exclusive_;
   double preference_;

@@ -60,7 +60,7 @@ Source::GetMatlBids(
     for (it = requests.begin(); it != requests.end(); ++it) {
       Request<Material>* req = *it;
       Material::Ptr offer = GetOffer(req->target());
-      port->AddBid(req, offer, this);
+      port->AddBid(req, offer, Trader::shared_from_this());
     }
 
     CapacityConstraint<Material> cc(capacity);
@@ -87,9 +87,9 @@ void Source::GetMatlTrades(
     // @TODO we need a policy on negatives..
     Material::Ptr response;
     if (recipe_name.empty()) {
-      response = Material::Create(this, qty, it->request->target()->comp());
+      response = Material::Create(Agent::shared_from_this(), qty, it->request->target()->comp());
     } else {
-      response = Material::Create(this, qty, context()->GetRecipe(recipe_name));
+      response = Material::Create(Agent::shared_from_this(), qty, context()->GetRecipe(recipe_name));
     }
     responses.push_back(std::make_pair(*it, response));
     LOG(cyclus::LEV_INFO4, "Source") << prototype() << " just received an order"

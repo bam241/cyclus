@@ -3,6 +3,7 @@
 
 #include <list>
 #include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "composition.h"
 #include "cyc_limits.h"
@@ -81,7 +82,7 @@ class Material: public Resource {
   /// pointer to the agent creating the resource (usually will be the caller's
   /// "this" pointer). All future output data recorded will be done using the
   /// creator's context.
-  static Ptr Create(Agent* creator, double quantity, Composition::Ptr c);
+  static Ptr Create(std::shared_ptr<Agent> creator, double quantity, Composition::Ptr c);
 
   /// Creates a new material resource that does not actually exist as part of
   /// the simulation and is untracked.

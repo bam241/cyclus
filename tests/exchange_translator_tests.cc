@@ -80,7 +80,7 @@ struct MatConverter2 : public Converter<Material> {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(ExXlateTests, NegPref) {
   TestContext tc;
-  TestFacility* trader = tc.trader();
+  std::shared_ptr<TestFacility> trader(tc.trader());
   double pref = -1;
   RequestPortfolio<Material>::Ptr rp(new RequestPortfolio<Material>());
   Request<Material>* req =
@@ -107,7 +107,7 @@ TEST(ExXlateTests, NegPref) {
 /// 1.5
 TEST(ExXlateTests, ZeroPref) {
   TestContext tc;
-  TestFacility* trader = tc.trader();
+  std::shared_ptr<TestFacility> trader(tc.trader());
   double pref = 0;
   RequestPortfolio<Material>::Ptr rp(new RequestPortfolio<Material>());
   Request<Material>* req =
@@ -172,7 +172,7 @@ TEST(ExXlateTests, XlateCapacities) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(ExXlateTests, XlateReq) {
   TestContext tc;
-  TestFacility* trader = tc.trader();
+  std::shared_ptr<TestFacility> trader(tc.trader());
 
   Converter<Material>::Ptr c1(new MatConverter1());
   double qty1 = 2.5 * qty;
@@ -217,7 +217,7 @@ TEST(ExXlateTests, XlateReq) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(ExXlateTests, XlateBid) {
   TestContext tc;
-  TestFacility* trader = tc.trader();
+  std::shared_ptr<TestFacility> trader(tc.trader());
 
   std::string commod = "commod";
   Request<Material>* req =
@@ -274,7 +274,7 @@ TEST(ExXlateTests, XlateBid) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(ExXlateTests, XlateArc) {
   TestContext tc;
-  TestFacility* trader = tc.trader();
+  std::shared_ptr<TestFacility> trader(tc.trader());
 
   Material::Ptr mat = get_mat(u235, qty);
 
@@ -325,7 +325,7 @@ TEST(ExXlateTests, XlateArc) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(ExXlateTests, XlateArcExclusive) {
   TestContext tc;
-  TestFacility* trader = tc.trader();
+  std::shared_ptr<TestFacility> trader(tc.trader());
 
   bool exclusive = true;
 
@@ -405,7 +405,7 @@ TEST(ExXlateTests, XlateArcExclusive) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(ExXlateTests, SimpleXlate) {
   TestContext tc;
-  TestFacility* trader = tc.trader();
+  std::shared_ptr<TestFacility> trader(tc.trader());
 
   std::string commod = "c";
   double pref = 4.5;

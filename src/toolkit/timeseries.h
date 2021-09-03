@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -29,23 +30,23 @@ enum TimeSeriesType : int{
 
 /// Stores global information for the time series call backs.
 typedef boost::variant<
-    std::function<void(cyclus::Agent*, int, bool, std::string)>,
-    std::function<void(cyclus::Agent*, int, int, std::string)>,
-    std::function<void(cyclus::Agent*, int, float, std::string)>,
-    std::function<void(cyclus::Agent*, int, double, std::string)>,
-    std::function<void(cyclus::Agent*, int, std::string, std::string)>
+    std::function<void(std::shared_ptr<Agent>, int, bool, std::string)>,
+    std::function<void(std::shared_ptr<Agent>, int, int, std::string)>,
+    std::function<void(std::shared_ptr<Agent>, int, float, std::string)>,
+    std::function<void(std::shared_ptr<Agent>, int, double, std::string)>,
+    std::function<void(std::shared_ptr<Agent>, int, std::string, std::string)>
     > time_series_listener_t;
 
 extern std::map<std::string, std::vector<time_series_listener_t>> TIME_SERIES_LISTENERS;
 
 /// Records a per-time step quantity for a given type
 template <TimeSeriesType T>
-void RecordTimeSeries(cyclus::Agent* agent, double value,
+void RecordTimeSeries(std::shared_ptr<Agent> agent, double value,
                       std::string units = "");
 
 /// Records a per-time step quantity for a string
 template <typename T>
-void RecordTimeSeries(std::string tsname, cyclus::Agent* agent, T value,
+void RecordTimeSeries(std::string tsname, std::shared_ptr<Agent> agent, T value,
                       std::string units = "") {
   std::string tblname = "TimeSeries" + tsname;
   int time = agent->context()->time();
@@ -58,7 +59,7 @@ void RecordTimeSeries(std::string tsname, cyclus::Agent* agent, T value,
        ->Record();
   std::vector<time_series_listener_t> vec = TIME_SERIES_LISTENERS[tsname];
   for (auto f=vec.begin(); f != vec.end(); ++f){
-    std::function<void(cyclus::Agent*, int, T, std::string)> fn = boost::get<std::function<void(cyclus::Agent*, int, T, std::string)> >(*f);
+    std::function<void(std::shared_ptr<Agent>, int, T, std::string)> fn = boost::get<std::function<void(std::shared_ptr<Agent>, int, T, std::string)> >(*f);
     fn(agent, time, value, tsname);
   }
   PyCallListeners(tsname, agent, agent->context(), time, value);

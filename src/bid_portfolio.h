@@ -1,6 +1,7 @@
 #ifndef CYCLUS_SRC_BID_PORTFOLIO_H_
 #define CYCLUS_SRC_BID_PORTFOLIO_H_
 
+#include <memory>
 #include <set>
 #include <sstream>
 #include <string>
@@ -15,8 +16,8 @@ namespace cyclus {
 
 class Trader;
 
-std::string GetTraderPrototype(Trader* bidder);
-std::string GetTraderSpec(Trader* bidder);
+std::string GetTraderPrototype(std::shared_ptr<Trader> bidder);
+std::string GetTraderSpec(std::shared_ptr<Trader> bidder);
 
 /// @class BidPortfolio
 ///
@@ -54,8 +55,8 @@ class BidPortfolio : public boost::enable_shared_from_this<BidPortfolio<T>> {
   /// @throws KeyError if a bid is added from a different bidder than the
   /// original
   Bid<T>* AddBid(Request<T>* request, boost::shared_ptr<T> offer,
-                 Trader* bidder, bool exclusive, double preference) {
-    Bid<T>* b = Bid<T>::Create(request, offer, bidder, this->shared_from_this(),
+                 std::shared_ptr<Trader> bidder, bool exclusive, double preference) {
+    Bid<T>* b = Bid<T>::Create(request, offer, bidder, BidPortfolio<T>::shared_from_this(),
                                exclusive, preference);
     VerifyResponder_(b);
     if (offer->quantity() > 0)
@@ -77,7 +78,7 @@ class BidPortfolio : public boost::enable_shared_from_this<BidPortfolio<T>> {
   /// @throws KeyError if a bid is added from a different bidder than the
   /// original
   Bid<T>* AddBid(Request<T>* request, boost::shared_ptr<T> offer,
-                 Trader* bidder, bool exclusive = false) {
+                 std::shared_ptr<Trader> bidder, bool exclusive = false) {
     return AddBid(request, offer, bidder, exclusive,
                   std::numeric_limits<double>::quiet_NaN());
   }
@@ -90,7 +91,7 @@ class BidPortfolio : public boost::enable_shared_from_this<BidPortfolio<T>> {
 
   /// @return the agent associated with the portfolio. If no bids have
   /// been added, the bidder is NULL.
-  inline Trader* bidder() const { return bidder_; }
+  inline std::shared_ptr<Trader> bidder() const { return bidder_; }
 
   /// @return *deprecated* the commodity associated with the portfolio.
   inline std::string commodity() const { return ""; }
@@ -140,7 +141,7 @@ class BidPortfolio : public boost::enable_shared_from_this<BidPortfolio<T>> {
   // constraints_ is a set because constraints are assumed to be unique
   std::set<CapacityConstraint<T>> constraints_;
 
-  Trader* bidder_;
+  std::shared_ptr<Trader> bidder_;
 };
 
 }  // namespace cyclus

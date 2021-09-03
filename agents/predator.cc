@@ -8,11 +8,11 @@ Predator::Predator(cyclus::Context* ctx) : cyclus::Facility(ctx) {}
 
 void Predator::EnterNotify() {
   cyclus::Facility::EnterNotify();
-  context()->RegisterTrader(this);
+  context()->RegisterTrader(Trader::shared_from_this());
 }
 
 void Predator::Decommission() {
-  context()->UnregisterTrader(this);
+  context()->UnregisterTrader(Trader::shared_from_this());
   cyclus::Facility::Decommission();
 }
 
@@ -28,7 +28,7 @@ Predator::GetProductRequests() {
       port(new RequestPortfolio<Product>());
 
   if (age % hunt_freq  == 0) {
-    port->AddRequest(Product::CreateUntracked(hunt_cap, ""), this, commod);
+    port->AddRequest(Product::CreateUntracked(hunt_cap, ""), Trader::shared_from_this(), commod);
     ports.insert(port);
   }
 
@@ -104,7 +104,7 @@ void Predator::Tock() {
   if (age >= lifespan) {
     LOG(cyclus::LEV_INFO3, "Predator") << name() << " is dying of old age";
     dead = 1;
-    context()->SchedDecom(this);
+    context()->SchedDecom(Agent::shared_from_this());
   }
 
   GiveBirth();

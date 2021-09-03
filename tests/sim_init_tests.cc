@@ -23,7 +23,7 @@ class Inver : public cy::Facility {
   Inver(cy::Context* ctx) : cy::Facility(ctx), val1(0) {}
   virtual ~Inver() {}
 
-  virtual Agent* Clone() {
+  virtual cyclus::Agent* Clone() {
     Inver* i = new Inver(context());
     i->InitFrom(this);
     return i;
@@ -46,15 +46,15 @@ class Inver : public cy::Facility {
         ->Record();
   }
 
-  virtual void Build(Agent* parent) {
+  virtual void Build(std::shared_ptr<cyclus::Agent> parent) {
     cy::Facility::Build(parent);
 
     cy::Composition::Ptr c = context()->GetRecipe("recipe1");
-    cy::Material::Ptr m1 = cy::Material::Create(this, 1, c);
-    cy::Material::Ptr m2 = cy::Material::Create(this, 2, c);
+    cy::Material::Ptr m1 = cy::Material::Create(Agent::shared_from_this(), 1, c);
+    cy::Material::Ptr m2 = cy::Material::Create(Agent::shared_from_this(), 2, c);
 
     c = context()->GetRecipe("recipe2");
-    cy::Material::Ptr m3 = cy::Material::Create(this, 3, c);
+    cy::Material::Ptr m3 = cy::Material::Create(Agent::shared_from_this(), 3, c);
 
     buf1.Push(m1);
     buf2.Push(m2);
@@ -82,8 +82,8 @@ class Inver : public cy::Facility {
   int val1;
 };
 
-Agent* ConstructInver(cy::Context* ctx) {
-  return new Inver(ctx);
+std::shared_ptr<cyclus::Agent> ConstructInver(cy::Context* ctx) {
+  return std::shared_ptr<Agent>(new Inver(ctx));
 }
 
 class SimInitTest : public ::testing::Test {
@@ -112,11 +112,11 @@ class SimInitTest : public ::testing::Test {
     ctx->AddRecipe("recipe2", cy::Composition::CreateFromMass(v));
 
     // create initial prototypes
-    Inver* a1 = new Inver(ctx);
+    std::shared_ptr<Inver> a1(new Inver(ctx));
     a1->spec(":Inver:Inver");
     a1->val1 = 23;
     a1->prototype_ = "proto1";
-    Inver* a2 = new Inver(ctx);
+    std::shared_ptr<Inver> a2(new Inver(ctx));
     a2->spec(":Inver:Inver");
     a2->val1 = 26;
     a2->prototype_ = "proto2";
@@ -126,8 +126,8 @@ class SimInitTest : public ::testing::Test {
     ctx->AddPrototype("proto2", a2);
 
     // sched 2 agents, build 2 agents
-    Agent* b1 = a1->Clone();
-    Agent* b2 = a2->Clone();
+    std::shared_ptr<cyclus::Agent> b1(a1->Clone());
+    std::shared_ptr<cyclus::Agent> b2(a2->Clone());
     b1->Build(NULL);
     b2->Build(NULL);
     ctx->SchedDecom(b1, 1);
@@ -160,14 +160,14 @@ class SimInitTest : public ::testing::Test {
   int transid(cy::Context* ctx) { return ctx->trans_id_; }
 
   cy::SimInfo siminfo(cy::Context* ctx) { return ctx->si_; }
-  std::set<Agent*> agent_list(cy::Context* ctx) { return ctx->agent_list_; }
+  std::set<std::shared_ptr<cyclus::Agent>> agent_list(cy::Context* ctx) { return ctx->agent_list_; }
   std::map<int, cy::TimeListener*> tickers(cy::Timer* ti) { return ti->tickers_; }
 
-  std::map<int, std::vector<std::pair<std::string, Agent*> > >
+  std::map<int, std::vector<std::pair<std::string, std::shared_ptr<cyclus::Agent>> > >
   build_queue(cy::Timer* ti) {
     return ti->build_queue_;
   }
-  std::map<int, std::vector<Agent*> > decom_queue(cy::Timer* ti) {
+  std::map<int, std::vector<std::shared_ptr<cyclus::Agent>> > decom_queue(cy::Timer* ti) {
     return ti->decom_queue_;
   }
 
@@ -253,7 +253,7 @@ TEST_F(SimInitTest, InitTimeListeners) {
 TEST_F(SimInitTest, InitBuildSched) {
   cy::SimInit si;
   si.Init(&rec, b);
-  std::map<int, std::vector<std::pair<std::string, Agent*> > > queue = build_queue(si.timer());
+  std::map<int, std::vector<std::pair<std::string, std::shared_ptr<cyclus::Agent>> > > queue = build_queue(si.timer());
 
   EXPECT_EQ(2, queue.size());
 
@@ -273,7 +273,7 @@ TEST_F(SimInitTest, InitBuildSched) {
 TEST_F(SimInitTest, InitDecomSched) {
   cy::SimInit si;
   si.Init(&rec, b);
-  std::map<int, std::vector<Agent*> > queue = decom_queue(si.timer());
+  std::map<int, std::vector<std::shared_ptr<cyclus::Agent>> > queue = decom_queue(si.timer());
 
   EXPECT_EQ(2, queue.size());
 
@@ -295,7 +295,7 @@ TEST_F(SimInitTest, InitProtos) {
   si.Init(&rec, b);
   cy::Context* init_ctx = si.context();
 
-  Inver* p1;
+  std::shared_ptr<Inver> p1;
   ASSERT_NO_THROW(p1 = init_ctx->CreateAgent<Inver>("proto1"));
   EXPECT_EQ(23, p1->val1);
   EXPECT_EQ(0, p1->buf1.count());
@@ -304,7 +304,7 @@ TEST_F(SimInitTest, InitProtos) {
   EXPECT_EQ(-1, p1->enter_time());
   EXPECT_EQ(":Inver:Inver", p1->spec());
 
-  Inver* p2;
+  std::shared_ptr<Inver> p2;
   ASSERT_NO_THROW(p2 = init_ctx->CreateAgent<Inver>("proto2"));
   EXPECT_EQ(26, p2->val1);
   EXPECT_EQ(0, p2->buf1.count());
@@ -315,12 +315,12 @@ TEST_F(SimInitTest, InitProtos) {
 TEST_F(SimInitTest, InitAgentState) {
   cy::SimInit si;
   si.Init(&rec, b);
-  std::set<Agent*> agents = agent_list(ctx);
-  std::set<Agent*> init_agents = agent_list(si.context());
+  std::set<std::shared_ptr<cyclus::Agent>> agents = agent_list(ctx);
+  std::set<std::shared_ptr<cyclus::Agent>> init_agents = agent_list(si.context());
 
-  std::map<int, Agent*> byid;
-  std::map<int, Agent*> init_byid;
-  std::set<Agent*>::iterator it;
+  std::map<int, std::shared_ptr<cyclus::Agent>> byid;
+  std::map<int, std::shared_ptr<cyclus::Agent>> init_byid;
+  std::set<std::shared_ptr<cyclus::Agent>>::iterator it;
   for (it = agents.begin(); it != agents.end(); ++it) {
     byid[(*it)->id()] = *it;
   }
@@ -331,10 +331,10 @@ TEST_F(SimInitTest, InitAgentState) {
   ASSERT_EQ(4, byid.size());  // 2 deployed, 2 protos
   ASSERT_EQ(4, init_byid.size());  // 2 deployed, 2 protos
 
-  std::map<int, Agent*>::iterator i;
+  std::map<int, std::shared_ptr<cyclus::Agent>>::iterator i;
   for (i = byid.begin(); i != byid.end(); ++i) {
     int id = i->first;
-    Agent* agent = i->second;
+    std::shared_ptr<cyclus::Agent> agent = i->second;
     if (agent->enter_time() == -1) {
       // skip prototypes
       continue;
@@ -347,7 +347,7 @@ TEST_F(SimInitTest, InitAgentState) {
       continue;
     }
 
-    Agent* init_agent = init_byid[id];
+    std::shared_ptr<cyclus::Agent> init_agent = init_byid[id];
     EXPECT_EQ(agent->parent(), init_agent->parent());
     EXPECT_EQ(agent->lifetime(), init_agent->lifetime());
     EXPECT_EQ(agent->enter_time(), init_agent->enter_time());
@@ -360,12 +360,12 @@ TEST_F(SimInitTest, InitAgentState) {
 TEST_F(SimInitTest, InitAgentInventories) {
   cy::SimInit si;
   si.Init(&rec, b);
-  std::set<Agent*> init_agents = agent_list(si.context());
-  std::set<Agent*> agents = agent_list(ctx);
+  std::set<std::shared_ptr<cyclus::Agent>> init_agents = agent_list(si.context());
+  std::set<std::shared_ptr<cyclus::Agent>> agents = agent_list(ctx);
 
-  std::map<int, Agent*> byid;
-  std::map<int, Agent*> init_byid;
-  std::set<Agent*>::iterator it;
+  std::map<int, std::shared_ptr<cyclus::Agent>> byid;
+  std::map<int, std::shared_ptr<cyclus::Agent>> init_byid;
+  std::set<std::shared_ptr<cyclus::Agent>>::iterator it;
   for (it = agents.begin(); it != agents.end(); ++it) {
     byid[(*it)->id()] = *it;
   }
@@ -379,11 +379,11 @@ TEST_F(SimInitTest, InitAgentInventories) {
   cy::Composition::Ptr recipe1 = ctx->GetRecipe("recipe1");
   cy::Composition::Ptr recipe2 = ctx->GetRecipe("recipe2");
 
-  std::map<int, Agent*>::iterator i;
+  std::map<int, std::shared_ptr<cyclus::Agent>>::iterator i;
   for (i = byid.begin(); i != byid.end(); ++i) {
     int id = i->first;
-    Inver* agent = dynamic_cast<Inver*>(i->second);
-    Inver* init_agent = dynamic_cast<Inver*>(init_byid[id]);
+    std::shared_ptr<Inver> agent = std::dynamic_pointer_cast<Inver>(i->second);
+    std::shared_ptr<Inver> init_agent = std::dynamic_pointer_cast<Inver>(init_byid[id]);
     if (agent->enter_time() == -1) {
       // skip prototypes
       continue;

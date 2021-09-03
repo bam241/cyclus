@@ -2,6 +2,7 @@
 #define CYCLUS_SRC_PRODUCT_H_
 
 #include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "context.h"
 #include "resource.h"
@@ -28,7 +29,7 @@ class Product : public Resource {
   /// pointer to the agent creating the resource (usually will be the caller's
   /// "this" pointer). All future output data recorded will be done using the
   /// creator's context.
-  static Ptr Create(Agent* creator, double quantity, std::string quality);
+  static Ptr Create(std::shared_ptr<Agent> creator, double quantity, std::string quality);
 
   /// Creates a new product that does not actually exist as part of
   /// the simulation and is untracked.

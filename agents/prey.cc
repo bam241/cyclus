@@ -14,11 +14,11 @@ Prey::Prey(cyclus::Context* ctx)
 
 void Prey::EnterNotify() {
   cyclus::Facility::EnterNotify();
-  context()->RegisterTrader(this);
+  context()->RegisterTrader(Trader::shared_from_this());
 }
 
 void Prey::Decommission() {
-  context()->UnregisterTrader(this);
+  context()->UnregisterTrader(Trader::shared_from_this());
   cyclus::Facility::Decommission();
 }
 
@@ -45,7 +45,7 @@ void Prey::Tock() {
 
   if (dead) {
     LOG(cyclus::LEV_INFO3, "Prey") << name() << " got eaten";
-    context()->SchedDecom(this);
+    context()->SchedDecom(Agent::shared_from_this());
     LOG(cyclus::LEV_INFO3, "Prey") << "}";
   }
 
@@ -74,7 +74,7 @@ Prey::GetProductBids(
     std::vector<Request<Product>*>::iterator it;
     for (it = requests.begin(); it != requests.end(); ++it) {
       // Offer one wabbit
-      port->AddBid(*it, Product::CreateUntracked(1, ""), this);
+      port->AddBid(*it, Product::CreateUntracked(1, ""), Trader::shared_from_this());
     }
     CapacityConstraint<Product> cc(1);  // only 1 wabbit!
     port->AddConstraint(cc);
@@ -97,7 +97,7 @@ void Prey::GetProductTrades(
     double qty = it->amt;
     current_capacity -= qty;
     provided += qty;
-    Product::Ptr response = Product::Create(this, qty, "");
+    Product::Ptr response = Product::Create(Agent::shared_from_this(), qty, "");
     responses.push_back(std::make_pair(*it, response));
     LOG(cyclus::LEV_INFO5, "Prey") << name() << " just received an order"
                                      << " for " << qty

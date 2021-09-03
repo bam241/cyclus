@@ -50,8 +50,8 @@ TEST(DynamicLoadingTests, CloneTestFacility) {
   cyclus::Recorder rec;
   cyclus::Timer ti;
   cyclus::Context* ctx = new cyclus::Context(&ti, &rec);
-  EXPECT_NO_THROW(Agent* fac = DynamicModule::Make(ctx, AgentSpec("tests:TestFacility:TestFacility"));
-                  Agent* clone = fac->Clone(););
+  EXPECT_NO_THROW(std::shared_ptr<Agent> fac = DynamicModule::Make(ctx, AgentSpec("tests:TestFacility:TestFacility"));
+                  std::shared_ptr<Agent> clone(fac->Clone()););
   DynamicModule::CloseAll();
   cyclus::PyStop();
 }

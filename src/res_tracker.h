@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <boost/shared_ptr.hpp>
 
 #include "context.h"
@@ -28,7 +29,7 @@ class ResTracker {
   void DontTrack();
 
   /// Should be called when a resource instance is newly created.
-  void Create(Agent* creator);
+  void Create(std::shared_ptr<Agent> creator);
 
   /// Should be called when a resource has some quantity removed from it (e.g.
   /// resource is split).

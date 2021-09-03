@@ -82,7 +82,7 @@ class Region : public Agent, public TimeListener {
   virtual Inventories SnapshotInv() { return Inventories(); }
 
   /// perform actions required when entering the simulation
-  virtual void Build(Agent* parent);
+  virtual void Build(std::shared_ptr<Agent> parent);
 
   virtual void EnterNotify();
 

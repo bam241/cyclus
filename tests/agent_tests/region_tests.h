@@ -22,13 +22,13 @@ using ::testing::Values;
 class RegionTests : public TestWithParam<AgentConstructor*> {
  public:
   virtual void SetUp() {
-    region_ = dynamic_cast<cyclus::Region*>((*GetParam())(tc_.get()));
+    region_ = std::dynamic_pointer_cast<cyclus::Region>((*GetParam())(tc_.get()));
   }
   virtual void TearDown() {}
 
  protected:
   cyclus::TestContext tc_;
-  cyclus::Region* region_;
+  std::shared_ptr<cyclus::Region> region_;
 };
 
 #else

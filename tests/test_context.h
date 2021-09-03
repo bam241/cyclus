@@ -33,7 +33,7 @@ class TestContext {
  public:
   TestContext() {
     ctx_ = new FakeContext(&ti_, &rec_);
-    trader_ = new TestFacility(ctx_);
+    trader_ = std::shared_ptr<TestFacility>(new TestFacility(ctx_));
     mat_ = get_mat();
   }
 
@@ -46,11 +46,10 @@ class TestContext {
     for (rit = reqs_.begin(); rit != reqs_.end(); ++rit) {
       delete *rit;
     }
-    delete trader_;
     delete ctx_;
   }
 
-  Request<Material>* NewReq(TestFacility* trader = NULL,
+  Request<Material>* NewReq(std::shared_ptr<TestFacility> trader = NULL,
                             std::string commod = "") {
     trader = (trader == NULL) ? trader_ : trader;
     Request<Material>* req = Request<Material>::Create(mat_, trader, commod);
@@ -59,7 +58,7 @@ class TestContext {
   }
 
   Bid<Material>* NewBid(Request<Material>* req = NULL,
-                        TestFacility* trader = NULL) {
+                        std::shared_ptr<TestFacility> trader = NULL) {
     trader = (trader == NULL) ? trader_ : trader;
     req = (req == NULL) ? NewReq(trader) : req;
     Bid<Material>* bid = Bid<Material>::Create(req, mat_, trader);
@@ -70,14 +69,14 @@ class TestContext {
   FakeContext* get() {return ctx_;}
   Timer* timer() {return &ti_;}
   Recorder* recorder() {return &rec_;}
-  TestFacility* trader() {return trader_;}
+  std::shared_ptr<TestFacility> trader() {return trader_;}
   Material::Ptr mat() {return mat_;}
 
  private:
   Timer ti_;
   Recorder rec_;
   FakeContext* ctx_;
-  TestFacility* trader_;
+  std::shared_ptr<TestFacility> trader_;
   Material::Ptr mat_;
   std::vector<Request<Material>*> reqs_;
   std::vector<Bid<Material>*> bids_;

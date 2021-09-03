@@ -16,7 +16,7 @@ namespace cyclus {
 // static members
 int Agent::next_id_ = 0;
 
-void Agent::InitFrom(std::shared_ptr<Agent> m) {
+void Agent::InitFrom(Agent* m) {
   prototype_ = m->prototype_;
   kind_ = m->kind_;
   spec_ = m->spec_;

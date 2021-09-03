@@ -101,10 +101,10 @@ struct ExchangeContext {
   std::vector<typename BidPortfolio<T>::Ptr> bids;
 
   /// @brief known requesters
-  std::set<Trader*> requesters;
+  std::set<std::shared_ptr<Trader>> requesters;
 
   /// @brief known bidders
-  std::set<Trader*> bidders;
+  std::set<std::shared_ptr<Trader>> bidders;
 
   /// @brief maps commodity name to requests for that commodity
   typename CommodMap<T>::type commod_requests;
@@ -114,7 +114,7 @@ struct ExchangeContext {
       bids_by_request;
 
   /// @brief maps commodity name to requests for that commodity
-  std::map<Trader*, typename PrefMap<T>::type> trader_prefs;
+  std::map<std::shared_ptr<Trader>, typename PrefMap<T>::type> trader_prefs;
 };
 
 }  // namespace cyclus

@@ -29,8 +29,8 @@ using test_helpers::TestConverter;
 class BidPortfolioTests: public ::testing::Test {
  protected:
   TestContext tc;
-  TestFacility* fac1;
-  TestFacility* fac2;
+  std::shared_ptr<TestFacility> fac1;
+  std::shared_ptr<TestFacility> fac2;
   string commod1;
   string commod2;
 
@@ -38,8 +38,8 @@ class BidPortfolioTests: public ::testing::Test {
   Request<Material>* req2;
 
   virtual void SetUp() {
-    fac1 = new TestFacility(tc.get());
-    fac2 = new TestFacility(tc.get());
+    fac1 = std::shared_ptr<TestFacility>(new TestFacility(tc.get()));
+    fac2 = std::shared_ptr<TestFacility>(new TestFacility(tc.get()));
     commod1 = "commod1";
     commod2 = "commod2";
     req1 = tc.NewReq(NULL, commod1);
@@ -47,8 +47,6 @@ class BidPortfolioTests: public ::testing::Test {
   }
 
   virtual void TearDown() {
-    delete fac1;
-    delete fac2;
   }
 };
 

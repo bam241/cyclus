@@ -24,7 +24,7 @@ class ResourceTest : public ::testing::Test {
 
     cyclus::CompMap v; v[922350000] = 1;
     cyclus::Composition::Ptr c = cyclus::Composition::CreateFromMass(v);
-    cyclus::Agent* dummy = new Dummy(ctx);
+    std::shared_ptr<cyclus::Agent> dummy(new Dummy(ctx));
 
     m1 = Material::Create(dummy, 3, c);
     m2 = Material::Create(dummy, 7, c);

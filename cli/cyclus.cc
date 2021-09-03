@@ -357,7 +357,7 @@ int EarlyExitArgs(const ArgInfo& ai) {
       Recorder rec;
       Timer ti;
       Context* ctx = new Context(&ti, &rec);
-      Agent* m = DynamicModule::Make(ctx, name);
+      std::shared_ptr<Agent> m = DynamicModule::Make(ctx, name);
       std::cout << m->schema();
       ctx->DelAgent(m);
     } catch (cyclus::IOError err) {
@@ -371,7 +371,7 @@ int EarlyExitArgs(const ArgInfo& ai) {
       Recorder rec;
       Timer ti;
       Context* ctx = new Context(&ti, &rec);
-      Agent* m = DynamicModule::Make(ctx, name);
+      std::shared_ptr<Agent> m = DynamicModule::Make(ctx, name);
       std::cout << m->version() << "\n";
       ctx->DelAgent(m);
     } catch (cyclus::IOError err) {
@@ -385,7 +385,7 @@ int EarlyExitArgs(const ArgInfo& ai) {
       Recorder rec;
       Timer ti;
       Context* ctx = new Context(&ti, &rec);
-      Agent* m = DynamicModule::Make(ctx, name);
+      std::shared_ptr<Agent> m = DynamicModule::Make(ctx, name);
       Json::CustomWriter writer = Json::CustomWriter("{", "}", "[", "]", ": ",
                                                      ", ", " ", 80);
       std::cout << writer.write(m->annotations());

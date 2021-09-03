@@ -137,7 +137,7 @@ MockSim::MockSim(AgentSpec spec, std::string config, int duration)
   InitAgent(a, xml, &rec_, back_);
 
   ctx_.AddPrototype(a->prototype(), a);
-  agent = (ctx_.CreateAgent<Agent>(a->prototype())).get();
+  agent = (ctx_.CreateAgent<Agent>(a->prototype()));
 }
 
 MockSim::MockSim(AgentSpec spec, std::string config, int duration, int lifetime)
@@ -159,7 +159,7 @@ MockSim::MockSim(AgentSpec spec, std::string config, int duration, int lifetime)
   InitAgent(a, xml, &rec_, back_);
 
   ctx_.AddPrototype(a->prototype(), a);
-  agent = ctx_.CreateAgent<Agent>(a->prototype()).get();
+  agent = ctx_.CreateAgent<Agent>(a->prototype());
 }
 
 void MockSim::DummyProto(std::string name) {

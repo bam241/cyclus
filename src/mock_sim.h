@@ -227,7 +227,7 @@ class MockSim {
   Context* context() {return &ctx_;}
 
   /// the agent being tested by the mock simulation environment.
-  Agent* agent;
+  std::shared_ptr<Agent> agent;
 
  private:
   Context ctx_;

@@ -11,7 +11,7 @@ std::map<std::string, int> Product::qualids_;
 int Product::next_qualid_ = 1;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Product::Ptr Product::Create(Agent* creator, double quantity,
+Product::Ptr Product::Create(std::shared_ptr<Agent> creator, double quantity,
                              std::string quality) {
   if (qualids_.count(quality) == 0) {
     qualids_[quality] = next_qualid_++;

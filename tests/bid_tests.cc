@@ -23,7 +23,7 @@ using std::string;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(BidTests, MaterialGetSet) {
   TestContext tc;
-  TestFacility* fac = tc.trader();
+  std::shared_ptr<TestFacility> fac(tc.trader());
   cyclus::CompMap cm;
   cm[92235] = 1.0;
   Composition::Ptr comp = Composition::CreateFromMass(cm);
@@ -43,7 +43,7 @@ TEST(BidTests, MaterialGetSet) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(BidTests, ProductGetSet) {
   TestContext tc;
-  TestFacility* fac = tc.trader();
+  std::shared_ptr<TestFacility> fac(tc.trader());
   double qty = 1.0;
   string quality = "qual";
 

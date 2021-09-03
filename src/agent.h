@@ -440,7 +440,7 @@ class Agent : public std::enable_shared_from_this<Agent>, public StateWrangler, 
   ///   // ...
   /// };
   /// @endcode
-  void InitFrom(std::shared_ptr<Agent> m);
+  void InitFrom(Agent* m);
 
   /// adds agent-specific information prefix to an error message
   virtual std::string InformErrorMsg(std::string msg);

@@ -25,14 +25,14 @@ class TestComp : public Composition {
 class MatlSellPolicyTests: public ::testing::Test {
  protected:
   TestContext tc;
-  TestFacility* fac1;
+  std::shared_ptr<TestFacility> fac1;
   double cap, qty;
   ResBuf<Material> buff;
   Composition::Ptr comp, comp1;
   Material::Ptr mat, mat1;
   
   virtual void SetUp() {
-    fac1 = new TestFacility(tc.get());
+    fac1 = std::shared_ptr<TestFacility>(new TestFacility(tc.get()));
     cap = 5;
     qty = 3;
     buff.capacity(cap);
@@ -46,7 +46,6 @@ class MatlSellPolicyTests: public ::testing::Test {
   }
 
   virtual void TearDown() {
-    delete fac1;
   }
 };
 

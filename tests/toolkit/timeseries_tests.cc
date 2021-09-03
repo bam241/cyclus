@@ -17,7 +17,7 @@ void testseries(std::string tbl) {
   SqliteBack* back = new SqliteBack(":memory:");
   rec.RegisterBackend(back);
 
-  Agent* a = new TestAgent(&ctx);
+  std::shared_ptr<Agent> a(new TestAgent(&ctx));
   RecordTimeSeries<T>(a, 42.0);
   rec.Close();
 
@@ -46,7 +46,7 @@ TEST(TimeSeriesTests, EnrichFeed) {
 
 TEST(TimeSeriesTests, RawPower) {
   TestContext tc;
-  Agent* a = new TestAgent(tc.get());
+  std::shared_ptr<Agent> a(new TestAgent(tc.get()));
   RecordTimeSeries<double>("Power", a, 42.0);
 }
 

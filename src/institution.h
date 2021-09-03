@@ -66,7 +66,7 @@ class Institution : public Agent, public TimeListener {
   virtual void Tock();
 
  protected:
-  void InitFrom(std::shared_ptr<Institution> m);
+  void InitFrom(Institution* m);
 };
 
 }  // namespace cyclus

@@ -21,11 +21,11 @@ namespace cyclus {
 /// A Trader is a mixin class designed for agents that wish to exchange
 /// resources. It defines the API for the querying of requests, offers, and the
 /// corresponding exchanges.
-class Trader {
+class Trader: public std::enable_shared_from_this<Trader> {
  public:
-  Trader(Agent* manager) : manager_(manager) {}
+  Trader(std::shared_ptr<Agent> manager) : manager_(manager) {}
 
-  virtual Agent* manager() {
+  virtual std::shared_ptr<Agent> manager() {
     return manager_;
   }
 
@@ -85,7 +85,7 @@ class Trader {
       Product::Ptr> >& responses) {}
 
  protected:
-  Agent* manager_;
+  std::shared_ptr<Agent> manager_;
 
  private:
   /// @warning this function is hidden to prevent an invalid signature that can

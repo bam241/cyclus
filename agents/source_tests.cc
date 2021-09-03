@@ -61,8 +61,8 @@ TEST_F(SourceTest, Tock) {
 };  // namespace cyclus
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cyclus::Agent* SourceConstructor(cyclus::Context* ctx) {
-  return new cyclus::Source(ctx);
+std::shared_ptr<cyclus::Agent> SourceConstructor(cyclus::Context* ctx) {
+  return std::shared_ptr<cyclus::Agent>(new cyclus::Source(ctx));
 }
 
 // Required to get functionality in cyclus agent unit tests library

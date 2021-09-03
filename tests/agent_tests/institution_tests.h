@@ -2,6 +2,7 @@
 #define CYCLUS_TESTS_AGENT_TESTS_INSTITUTION_TESTS_H_
 
 #include <gtest/gtest.h>
+#include <memory>
 
 #include "agent_tests.h"
 #include "institution.h"
@@ -26,21 +27,18 @@ class InstitutionTests : public TestWithParam<AgentConstructor*> {
  public:
   virtual void SetUp() {
     //institution_ = new TestInst(tc_.get());
-    institution_ = dynamic_cast<cyclus::Institution*>((*GetParam())(tc_.get()));
-    test_facility_ = new TestFacility(tc_.get());
-    test_region_ = new TestRegion(tc_.get());
+    institution_ = std::dynamic_pointer_cast<cyclus::Institution>((*GetParam())(tc_.get()));
+    test_facility_ = std::shared_ptr<TestFacility>(new TestFacility(tc_.get()));
+    test_region_ = std::shared_ptr<TestRegion>(new TestRegion(tc_.get()));
     institution_->Build(test_region_);
   }
   virtual void TearDown() {
-    delete test_facility_;
-    delete institution_;
-    delete test_region_;
   }
 
  protected:
-  cyclus::Institution* institution_;
-  TestFacility* test_facility_;
-  TestRegion* test_region_;
+  std::shared_ptr<cyclus::Institution> institution_;
+  std::shared_ptr<TestFacility> test_facility_;
+  std::shared_ptr<TestRegion> test_region_;
   cyclus::TestContext tc_;
 };
 

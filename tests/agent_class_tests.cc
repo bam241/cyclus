@@ -9,7 +9,7 @@ namespace cyclus {
 
 TEST(AgentClassTests, lifetime) {
   TestContext tc;
-  Agent* a = new TestAgent(tc.get());
+  std::shared_ptr<Agent> a(new TestAgent(tc.get()));
 
   EXPECT_EQ(-1, a->lifetime());
   EXPECT_NO_THROW(a->lifetime(42));
@@ -22,9 +22,9 @@ TEST(AgentClassTests, lifetime) {
 TEST(AgentClassTests, FamilyTree) {
   TestContext tc;
 
-  Agent* child = new TestAgent(tc.get());
-  Agent* parent = new TestAgent(tc.get());
-  Agent* grandparent = new TestAgent(tc.get());
+  std::shared_ptr<Agent> child(new TestAgent(tc.get()));
+  std::shared_ptr<Agent> parent(new TestAgent(tc.get()));
+  std::shared_ptr<Agent> grandparent(new TestAgent(tc.get()));
 
   // family tree
   EXPECT_TRUE(grandparent->InFamilyTree(grandparent));

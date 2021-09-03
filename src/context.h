@@ -159,17 +159,17 @@ class Context {
 
   /// Registers an agent as a participant in resource exchanges. Agents should
   /// register from their Deploy method.
-  inline void RegisterTrader(Trader* e) {
+  inline void RegisterTrader(std::shared_ptr<Trader> e) {
     traders_.insert(e);
   }
 
   /// Unregisters an agent as a participant in resource exchanges.
-  inline void UnregisterTrader(Trader* e) {
+  inline void UnregisterTrader(std::shared_ptr<Trader> e) {
     traders_.erase(e);
   }
 
   /// @return the current set of traders registered for resource exchange.
-  inline const std::set<Trader*>& traders() const {
+  inline const std::set<std::shared_ptr<Trader>>& traders() const {
     return traders_;
   }
 
@@ -305,7 +305,7 @@ class Context {
   std::map<std::string, std::shared_ptr<Agent>> protos_;
   std::map<std::string, Composition::Ptr> recipes_;
   std::set<std::shared_ptr<Agent>> agent_list_;
-  std::set<Trader*> traders_;
+  std::set<std::shared_ptr<Trader>> traders_;
   std::map<std::string, int> n_prototypes_;
   std::map<std::string, int> n_specs_;
 

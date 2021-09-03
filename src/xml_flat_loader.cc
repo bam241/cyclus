@@ -1,5 +1,7 @@
 #include "xml_flat_loader.h"
 
+#include <memory>
+
 #include "agent.h"
 #include "context.h"
 #include "env.h"
@@ -23,7 +25,7 @@ std::string BuildFlatMasterSchema(std::string schema_path, std::string infile) {
   std::vector<AgentSpec> specs = ParseSpecs(infile);
   std::string subschemas;
   for (int i = 0; i < specs.size(); ++i) {
-    Agent* m = DynamicModule::Make(&ctx, specs[i]);
+    std::shared_ptr<Agent> m = DynamicModule::Make(&ctx, specs[i]);
     subschemas += "<element name=\"" + specs[i].alias() + "\">\n";
     subschemas += m->schema() + "\n";
     subschemas += "</element>\n";
@@ -55,7 +57,7 @@ void XMLFlatLoader::LoadInitialAgents() {
     std::string alias = qe->SubTree("config")->GetElementName(0);
     AgentSpec spec = specs_[alias];
 
-    Agent* agent = DynamicModule::Make(ctx_, spec);
+    std::shared_ptr<Agent> agent = DynamicModule::Make(ctx_, spec);
 
     // call manually without agent impl injected to keep all Agent state in a
     // single, consolidated db table
@@ -97,7 +99,7 @@ void XMLFlatLoader::LoadInitialAgents() {
   }
 
   // build agents starting at roots (no parent) down.
-  std::map<std::string, Agent*> built;  // map<agent_name, agent_ptr>
+  std::map<std::string, std::shared_ptr<Agent>> built;  // map<agent_name, agent_ptr>
   std::set<std::string>::iterator it = agents.begin();
   while (agents.size() > 0) {
     std::string name = *it;

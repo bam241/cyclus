@@ -98,7 +98,7 @@ KFacility::GetMatlBids(
     for (it = requests.begin(); it != requests.end(); ++it) {
       Request<Material>* req = *it;
       Material::Ptr offer = GetOffer(req->target());
-      port->AddBid(req, offer, this);
+      port->AddBid(req, offer, Trader::shared_from_this());
     }
 
     CapacityConstraint<Material> cc(out_capacity);
@@ -123,7 +123,7 @@ void KFacility::GetMatlTrades(
     current_capacity -= qty;
     provided += qty;
     // @TODO we need a policy on negatives..
-    Material::Ptr response = Material::Create(this, qty,
+    Material::Ptr response = Material::Create(Agent::shared_from_this(), qty,
                                               context()->GetRecipe(recipe_name));
     responses.push_back(std::make_pair(*it, response));
     LOG(cyclus::LEV_INFO5, "KFac") << prototype() << " just received an order"
@@ -155,7 +155,7 @@ KFacility::GetMatlRequests() {
     CapacityConstraint<Material> cc(amt);
     port->AddConstraint(cc);
 
-    port->AddRequest(mat, this, in_commod);
+    port->AddRequest(mat, Trader::shared_from_this(), in_commod);
 
     ports.insert(port);
   }  // if amt > eps
@@ -181,7 +181,7 @@ KFacility::GetProductRequests() {
 
     std::string quality = "";  // not clear what this should be..
     Product::Ptr rsrc = Product::CreateUntracked(amt, quality);
-    port->AddRequest(rsrc, this, in_commod);
+    port->AddRequest(rsrc, Trader::shared_from_this(), in_commod);
 
     ports.insert(port);
   }  // if amt > eps

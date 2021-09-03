@@ -15,7 +15,7 @@ void ResTracker::DontTrack() {
   tracked_ = false;
 }
 
-void ResTracker::Create(Agent* creator) {
+void ResTracker::Create(std::shared_ptr<Agent> creator) {
   if (!tracked_) {
     return;
   }

@@ -23,14 +23,13 @@ class TestComp : public Composition {
 class MatlBuyPolicyTests: public ::testing::Test {
  protected:
   TestContext tc;
-  TestFacility* fac1;
+  std::shared_ptr<TestFacility> fac1;
 
   virtual void SetUp() {
-    fac1 = new TestFacility(tc.get());
+    fac1 = std::shared_ptr<TestFacility>(new TestFacility(tc.get()));
   }
 
   virtual void TearDown() {
-    delete fac1;
   }
 };
 

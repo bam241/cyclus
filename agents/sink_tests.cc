@@ -58,8 +58,8 @@ TEST_F(SinkTest, Tock) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cyclus::Agent* SinkConstructor(cyclus::Context* ctx) {
-  return new Sink(ctx);
+std::shared_ptr<cyclus::Agent> SinkConstructor(cyclus::Context* ctx) {
+  return std::shared_ptr<cyclus::Agent>(new Sink(ctx));
 }
 
 // Required to get functionality in cyclus agent unit tests library

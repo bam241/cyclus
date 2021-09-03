@@ -80,10 +80,10 @@ class Source : public cyclus::Facility {
   /// @return the name of the output recipe
   inline std::string recipe() const { return recipe_name; }
 
-  virtual void Build(cyclus::Agent* parent) {
+  virtual void Build(std::shared_ptr<cyclus::Agent> parent) {
     Facility::Build(parent);
     if (lifetime() >= 0) {
-      context()->SchedDecom(this, exit_time());
+      context()->SchedDecom(Agent::shared_from_this(), exit_time());
     }
   }
 

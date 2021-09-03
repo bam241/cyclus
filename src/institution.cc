@@ -20,7 +20,7 @@ Institution::Institution(Context* ctx) : Agent(ctx) {
 Institution::~Institution() {
 }
 
-void Institution::InitFrom(std::shared_ptr<Institution> m) {
+void Institution::InitFrom(Institution* m) {
   Agent::InitFrom(m);
 }
 

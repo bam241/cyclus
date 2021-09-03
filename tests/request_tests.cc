@@ -21,8 +21,8 @@ using std::string;
 
 TEST(RequestTests, Defaults) {
   TestContext tc;
-  TestFacility* fac = tc.trader();
-  Trader* excast = dynamic_cast<Trader*>(fac);
+  std::shared_ptr<TestFacility> fac(tc.trader());
+  std::shared_ptr<Trader> excast = std::dynamic_pointer_cast<Trader>(fac);
 
   cyclus::CompMap cm;
   cm[92235] = 1.0;
@@ -42,7 +42,7 @@ TEST(RequestTests, Defaults) {
 
 TEST(RequestTests, MaterialGetSet) {
   TestContext tc;
-  TestFacility* fac = tc.trader();
+  std::shared_ptr<TestFacility> fac(tc.trader());
 
   string commod = "name";
   double pref = 2.4;
@@ -64,7 +64,7 @@ TEST(RequestTests, MaterialGetSet) {
 
 TEST(RequestTests, ProductGetSet) {
   TestContext tc;
-  TestFacility* fac = tc.trader();
+  std::shared_ptr<TestFacility> fac(tc.trader());
   string commod = "name";
   double pref = 2.4;
   double qty = 1.0;
@@ -86,8 +86,8 @@ TEST(RequestTests, ProductGetSet) {
 
 TEST(RequestTests, FunctionPointer) {
   TestContext tc;
-  TestFacility* fac = tc.trader();
-  Trader* excast = dynamic_cast<Trader*>(fac);
+  std::shared_ptr<TestFacility> fac(tc.trader());
+  std::shared_ptr<Trader> excast = std::dynamic_pointer_cast<Trader>(fac);
 
   cyclus::CompMap cm;
   cm[92235] = 1.0;

@@ -28,7 +28,7 @@ class Dier : public cyclus::Facility {
 
   void Tick() {
     if (context()->time() == 0) {
-      context()->SchedDecom(this);
+      context()->SchedDecom(Agent::shared_from_this());
     }
   }
   void Tock() {}
@@ -235,7 +235,7 @@ TEST(TimerTests, NullParentDecomNoSegfault) {
 
   ti.Initialize(&ctx, cyclus::SimInfo(2));
 
-  Dier* d = new Dier(&ctx);
+  std::shared_ptr<Dier> d(new Dier(&ctx));
   d->Build(NULL);
 
   // EXPECT_NO_SEGFAULT
@@ -251,7 +251,7 @@ TEST(TimerTests, DoubleDecom) {
 
   ti.Initialize(&ctx, cyclus::SimInfo(4));
 
-  Dier* d = new Dier(&ctx);
+  std::shared_ptr<Dier> d(new Dier(&ctx));
   d->Build(NULL);
   ctx.SchedDecom(d, 0);
 

@@ -21,7 +21,7 @@ Region::Region(Context* ctx) : Agent(ctx) {
   kind_ = "Region";
 }
 
-void Region::Build(Agent* parent) {
+void Region::Build(std::shared_ptr<Agent> parent) {
   Agent::Build(parent);
 }
 
@@ -38,7 +38,7 @@ std::string Region::str() {
   std::string s = Agent::str();
 
   s += " has insts: ";
-  for (std::set<Agent*>::const_iterator inst = children().begin();
+  for (std::set<std::shared_ptr<Agent>>::const_iterator inst = children().begin();
        inst != children().end();
        inst++) {
     s += (*inst)->prototype() + ", ";

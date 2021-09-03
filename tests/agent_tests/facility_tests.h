@@ -22,13 +22,13 @@ using ::testing::Values;
 class FacilityTests : public TestWithParam<AgentConstructor*> {
  public:
   virtual void SetUp() {
-    facility_ = dynamic_cast<cyclus::Facility*>((*GetParam())(tc_.get()));
+    facility_ = std::dynamic_pointer_cast<cyclus::Facility>((*GetParam())(tc_.get()));
   }
 
   virtual void TearDown() {}
 
  protected:
-  cyclus::Facility* facility_;
+  std::shared_ptr<cyclus::Facility> facility_;
   cyclus::TestContext tc_;
 };
 

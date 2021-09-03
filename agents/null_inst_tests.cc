@@ -53,8 +53,8 @@ TEST_F(NullInstTest, Tock) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cyclus::Agent* NullInstConstructor(cyclus::Context* ctx) {
-  return new NullInst(ctx);
+std::shared_ptr<cyclus::Agent> NullInstConstructor(cyclus::Context* ctx) {
+  return std::shared_ptr<cyclus::Agent>(new NullInst(ctx));
 }
 
 // Required to get functionality in cyclus agent unit tests library

@@ -12,10 +12,10 @@ using cyclus::KFacility;
 class KFacilityTest : public ::testing::Test {
  protected:
   cyclus::TestContext tc_;
-  KFacility* src_facility_;
+  std::shared_ptr<KFacility> src_facility_;
 
   virtual void SetUp() {
-    src_facility_ = new KFacility(tc_.get());
+    src_facility_ = std::shared_ptr<KFacility>(new KFacility(tc_.get()));
   }
 
   virtual void TearDown() {}
@@ -27,8 +27,8 @@ TEST_F(KFacilityTest, clone) {
   delete cloned_fac;
 }
 
-cyclus::Agent* KFacilityConstructor(cyclus::Context* ctx) {
-  return dynamic_cast<cyclus::Agent*>(new KFacility(ctx));
+std::shared_ptr<cyclus::Agent> KFacilityConstructor(cyclus::Context* ctx) {
+  return std::dynamic_pointer_cast<cyclus::Agent>(std::shared_ptr<KFacility>(new KFacility(ctx)));
 }
 
 // Required to get functionality in cyclus agent unit tests library

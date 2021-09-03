@@ -26,10 +26,10 @@ inline static void AdjustPrefs(Agent* m, PrefMap<Material>::type& prefs) {
 inline static void AdjustPrefs(Agent* m, PrefMap<Product>::type& prefs) {
   m->AdjustProductPrefs(prefs);
 }
-inline static void AdjustPrefs(Trader* t, PrefMap<Material>::type& prefs) {
+inline static void AdjustPrefs(std::shared_ptr<Trader> t, PrefMap<Material>::type& prefs) {
   t->AdjustMatlPrefs(prefs);
 }
-inline static void AdjustPrefs(Trader* t, PrefMap<Product>::type& prefs) {
+inline static void AdjustPrefs(std::shared_ptr<Trader> t, PrefMap<Product>::type& prefs) {
   t->AdjustProductPrefs(prefs);
 }
 
@@ -94,7 +94,7 @@ class ResourceExchange {
   /// @brief adjust preferences for requests given bid responses
   void AdjustAll() {
     InitTraders();
-    std::set<Trader*> traders = ex_ctx_.requesters;
+    std::set<std::shared_ptr<Trader>> traders = ex_ctx_.requesters;
     std::for_each(
         traders.begin(),
         traders.end(),
@@ -110,8 +110,8 @@ class ResourceExchange {
  private:
   void InitTraders() {
     if (traders_.size() == 0) {
-      std::set<Trader*> orig = sim_ctx_->traders();
-      std::set<Trader*>::iterator it;
+      std::set<std::shared_ptr<Trader>> orig = sim_ctx_->traders();
+      std::set<std::shared_ptr<Trader>>::iterator it;
       for (it = orig.begin(); it != orig.end(); ++it) {
         traders_.insert(*it);
       }
@@ -119,7 +119,7 @@ class ResourceExchange {
   }
 
   /// @brief queries a given facility agent for
-  void AddRequests_(Trader* t) {
+  void AddRequests_(std::shared_ptr<Trader> t) {
     std::set<typename RequestPortfolio<T>::Ptr> rp = QueryRequests<T>(t);
     typename std::set<typename RequestPortfolio<T>::Ptr>::iterator it;
     for (it = rp.begin(); it != rp.end(); ++it) {
@@ -128,7 +128,7 @@ class ResourceExchange {
   }
 
   /// @brief queries a given facility agent for
-  void AddBids_(Trader* t) {
+  void AddBids_(std::shared_ptr<Trader> t) {
     std::set<typename BidPortfolio<T>::Ptr> bp =
         QueryBids<T>(t, ex_ctx_.commod_requests);
     typename std::set<typename BidPortfolio<T>::Ptr>::iterator it;
@@ -139,18 +139,18 @@ class ResourceExchange {
 
   /// @brief allows a trader and its parents to adjust any preferences in the
   /// system
-  void AdjustPrefs_(Trader* t) {
+  void AdjustPrefs_(std::shared_ptr<Trader> t) {
     typename PrefMap<T>::type& prefs = ex_ctx_.trader_prefs[t];
     AdjustPrefs(t, prefs);
-    Agent* m = t->manager()->parent();
+    std::shared_ptr<Agent> m = t->manager()->parent();
     while (m != NULL) {
-      AdjustPrefs(m, prefs);
+      AdjustPrefs(m.get(), prefs);
       m = m->parent();
     }
   }
 
   struct trader_compare {
-    bool operator()(Trader* lhs, Trader* rhs) const {
+    bool operator()(std::shared_ptr<Trader> lhs, std::shared_ptr<Trader> rhs) const {
       int left = lhs->manager()->id();
       int right = rhs->manager()->id();
       if (left != right) {
@@ -165,7 +165,7 @@ class ResourceExchange {
   // manager id.  Iterating over traders in this order helps increase the
   // determinism of Cyclus overall.  This allows all traders' resource
   // exchange functions are called in a much closer to deterministic order.
-  std::set<Trader*, trader_compare> traders_;
+  std::set<std::shared_ptr<Trader>, trader_compare> traders_;
 
   Context* sim_ctx_;
   ExchangeContext<T> ex_ctx_;

@@ -34,21 +34,21 @@ class MaterialTest : public ::testing::Test {
   cyclus::Timer ti;
   cyclus::Recorder rec;
   cyclus::Context* ctx;
-  TestFacility* fac;
+  std::shared_ptr<TestFacility> fac;
   cyclus::Context* ctx_no_decay;
-  TestFacility* fac_no_decay;
+  std::shared_ptr<TestFacility> fac_no_decay;
   // dur 100, y0 = 2015, m0=1, handle="", d="never"
   SimInfo si;
 
   virtual void SetUp() {
     PyStart();
     ctx = new cyclus::Context(&ti, &rec);
-    fac = new TestFacility(ctx);
+    fac = std::shared_ptr<TestFacility>(new TestFacility(ctx));
 
     si = SimInfo(100, 2015, 1, "", "never");
     ctx_no_decay = new cyclus::Context(&ti, &rec);
     ctx_no_decay->InitSim(si);
-    fac_no_decay = new TestFacility(ctx_no_decay);
+    fac_no_decay = std::shared_ptr<TestFacility>(new TestFacility(ctx_no_decay));
     Env::SetNucDataPath();
 
     // composition set up

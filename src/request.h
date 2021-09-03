@@ -43,7 +43,7 @@ template <class T> class Request {
   /// @param cost_function a standard function object that returns the cost of a
   /// potential resource when called.
   inline static Request<T>* Create(boost::shared_ptr<T> target,
-                                   Trader* requester,
+                                   std::shared_ptr<Trader> requester,
                                    typename RequestPortfolio<T>::Ptr portfolio,
                                    std::string commodity,
                                    double preference,
@@ -63,7 +63,7 @@ template <class T> class Request {
   /// exclusively,
   /// i.e., in its entirety by a single offer
   inline static Request<T>* Create(boost::shared_ptr<T> target,
-                                   Trader* requester,
+                                   std::shared_ptr<Trader> requester,
                                    typename RequestPortfolio<T>::Ptr portfolio,
                                    std::string commodity = "",
                                    double preference = kDefaultPref,
@@ -75,7 +75,7 @@ template <class T> class Request {
   /// @brief a factory method for a bid for a bid without a portfolio
   /// @warning this factory should generally only be used for testing
   inline static Request<T>* Create(boost::shared_ptr<T> target,
-                                   Trader* requester,
+                                   std::shared_ptr<Trader> requester,
                                    std::string commodity,
                                    double preference,
                                    bool exclusive,
@@ -86,7 +86,7 @@ template <class T> class Request {
   /// @brief a factory method for a bid for a bid without a portfolio
   /// @warning this factory should generally only be used for testing
   inline static Request<T>* Create(boost::shared_ptr<T> target,
-                                   Trader* requester,
+                                   std::shared_ptr<Trader> requester,
                                    std::string commodity = "",
                                    double preference = kDefaultPref,
                                    bool exclusive = false) {
@@ -97,7 +97,7 @@ template <class T> class Request {
   inline boost::shared_ptr<T> target() const { return target_; }
 
   /// @return the requester associated with this request
-  inline Trader* requester() const { return requester_; }
+  inline std::shared_ptr<Trader> requester() const { return requester_; }
 
   /// @return the commodity associated with this request
   inline std::string commodity() const { return commodity_; }
@@ -118,7 +118,7 @@ template <class T> class Request {
 
  private:
   /// @brief constructors are private to require use of factory methods
-  Request(boost::shared_ptr<T> target, Trader* requester, std::string commodity,
+  Request(boost::shared_ptr<T> target, std::shared_ptr<Trader> requester, std::string commodity,
           double preference, bool exclusive, cost_function_t cost_function)
       : target_(target),
         requester_(requester),
@@ -128,7 +128,7 @@ template <class T> class Request {
         cost_function_(cost_function) {}
 
   /// @brief constructors are private to require use of factory methods
-  Request(boost::shared_ptr<T> target, Trader* requester,
+  Request(boost::shared_ptr<T> target, std::shared_ptr<Trader> requester,
           std::string commodity = "", double preference = kDefaultPref,
           bool exclusive = false)
       : target_(target),
@@ -138,7 +138,7 @@ template <class T> class Request {
         exclusive_(exclusive),
         cost_function_(NULL) {}
 
-  Request(boost::shared_ptr<T> target, Trader* requester,
+  Request(boost::shared_ptr<T> target, std::shared_ptr<Trader> requester,
           typename RequestPortfolio<T>::Ptr portfolio, std::string commodity,
           double preference, bool exclusive, cost_function_t cost_function)
       : target_(target),
@@ -149,7 +149,7 @@ template <class T> class Request {
         exclusive_(exclusive),
         cost_function_(cost_function) {}
 
-  Request(boost::shared_ptr<T> target, Trader* requester,
+  Request(boost::shared_ptr<T> target, std::shared_ptr<Trader> requester,
           typename RequestPortfolio<T>::Ptr portfolio,
           std::string commodity = "", double preference = kDefaultPref,
           bool exclusive = false)
@@ -162,7 +162,7 @@ template <class T> class Request {
         cost_function_(NULL) {}
 
   boost::shared_ptr<T> target_;
-  Trader* requester_;
+  std::shared_ptr<Trader> requester_;
   double preference_;
   std::string commodity_;
   boost::weak_ptr<RequestPortfolio<T>> portfolio_;

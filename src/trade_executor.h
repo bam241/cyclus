@@ -18,20 +18,20 @@ namespace cyclus {
 /// @brief a holding class for information related to a TradeExecutor
 template <class T>
 struct TradeExecutionContext {
-  std::set<Trader*> suppliers;
-  std::set<Trader*> requesters;
+  std::set<std::shared_ptr<Trader>> suppliers;
+  std::set<std::shared_ptr<Trader>> requesters;
 
   // the key is the supplier
-  std::map<Trader*, std::vector< Trade<T> > > trades_by_supplier;
+  std::map<std::shared_ptr<Trader>, std::vector< Trade<T> > > trades_by_supplier;
 
   // the key is the requester, values are a vector of the target Trade with the
   // associated response resource provided by the supplier
-  std::map<Trader*, std::vector< std::pair<Trade<T>, typename T::Ptr> > >
+  std::map<std::shared_ptr<Trader>, std::vector< std::pair<Trade<T>, typename T::Ptr> > >
       trades_by_requester;
 
   // by convention, the first trader is the supplier, the second is the
   // requester
-  std::map<std::pair<Trader*, Trader*>,
+  std::map<std::pair<std::shared_ptr<Trader>, std::shared_ptr<Trader>>,
       std::vector< std::pair<Trade<T>, typename T::Ptr> > > all_trades;
 };
 
@@ -76,12 +76,12 @@ class TradeExecutor {
   /// occur
   void RecordTrades(Context* ctx) {
     // record all trades
-    typename std::map<std::pair<Trader*, Trader*>,
+    typename std::map<std::pair<std::shared_ptr<Trader>, std::shared_ptr<Trader>>,
         std::vector< std::pair<Trade<T>, typename T::Ptr> > >::iterator m_it;
     for (m_it = trade_ctx_.all_trades.begin();
          m_it != trade_ctx_.all_trades.end(); ++m_it) {
-      Agent* supplier = m_it->first.first->manager();
-      Agent* requester = m_it->first.second->manager();
+      std::shared_ptr<Agent> supplier = m_it->first.first->manager();
+      std::shared_ptr<Agent> requester = m_it->first.second->manager();
       typename std::vector< std::pair<Trade<T>, typename T::Ptr> >&
           trades = m_it->second;
       typename std::vector< std::pair<Trade<T>, typename T::Ptr> >::iterator
@@ -129,11 +129,11 @@ void GroupTradesBySupplier(TradeExecutionContext<T>& trade_ctx,
 /// populates trades_by_requester_ and all_trades_ with the results
 template<class T>
 static void GetTradeResponses(TradeExecutionContext<T>& trade_ctx) {
-  std::set<Trader*>::iterator it;
+  std::set<std::shared_ptr<Trader>>::iterator it;
   for (it = trade_ctx.suppliers.begin(); it != trade_ctx.suppliers.end();
        ++it) {
     // get responses
-    Trader* supplier = *it;
+    std::shared_ptr<Trader> supplier = *it;
     std::vector< std::pair<Trade<T>, typename T::Ptr> > responses;
     PopulateTradeResponses(supplier, trade_ctx.trades_by_supplier[supplier],
                            responses);
@@ -147,7 +147,7 @@ static void GetTradeResponses(TradeExecutionContext<T>& trade_ctx) {
       // if (rsrc->quantity() != trade.amt) {
       //   throw ValueError("Trade amt and resource qty must match");
       // }
-      Trader* requester = r_it->first.request->requester();
+      std::shared_ptr<Trader> requester = r_it->first.request->requester();
       trade_ctx.trades_by_requester[requester].push_back(*r_it);
       trade_ctx.all_trades[std::make_pair(supplier, requester)].push_back(*r_it);
     }
@@ -156,10 +156,10 @@ static void GetTradeResponses(TradeExecutionContext<T>& trade_ctx) {
 
 template <class T>
 static void SendTradeResources(TradeExecutionContext<T>& trade_ctx) {
-  std::set<Trader*>::iterator it;
+  std::set<std::shared_ptr<Trader>>::iterator it;
   for (it = trade_ctx.requesters.begin(); it != trade_ctx.requesters.end();
        ++it) {
-    Trader* requester = *it;
+    std::shared_ptr<Trader> requester = *it;
     AcceptTrades(requester, trade_ctx.trades_by_requester[requester]);
   }
 }

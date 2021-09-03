@@ -12,43 +12,43 @@ namespace cyclus {
 // template specializations to support inheritance and virtual functions
 template<class T>
 inline static std::set<typename RequestPortfolio<T>::Ptr>
-    QueryRequests(Trader* t) {
+    QueryRequests(std::shared_ptr<Trader> t) {
   throw StateError("Non-specialized version of QueryRequests not supported");
 }
 
 template<>
 inline std::set<RequestPortfolio<Material>::Ptr>
-    QueryRequests<Material>(Trader* t) {
+    QueryRequests<Material>(std::shared_ptr<Trader> t) {
   return t->GetMatlRequests();
 }
 
 template<>
 inline std::set<RequestPortfolio<Product>::Ptr>
-    QueryRequests<Product>(Trader* t) {
+    QueryRequests<Product>(std::shared_ptr<Trader> t) {
   return t->GetProductRequests();
 }
 
 template<class T>
 inline static std::set<typename BidPortfolio<T>::Ptr>
-    QueryBids(Trader* t, typename CommodMap<T>::type& map) {
+    QueryBids(std::shared_ptr<Trader> t, typename CommodMap<T>::type& map) {
   throw StateError("Non-specialized version of QueryBids not supported");
 }
 
 template<>
 inline std::set<BidPortfolio<Material>::Ptr>
-    QueryBids<Material>(Trader* t, CommodMap<Material>::type& map) {
+    QueryBids<Material>(std::shared_ptr<Trader> t, CommodMap<Material>::type& map) {
   return t->GetMatlBids(map);
 }
 
 template<>
 inline std::set<BidPortfolio<Product>::Ptr>
-    QueryBids<Product>(Trader* t, CommodMap<Product>::type& map) {
+    QueryBids<Product>(std::shared_ptr<Trader> t, CommodMap<Product>::type& map) {
   return t->GetProductBids(map);
 }
 
 template<class T>
 inline static void PopulateTradeResponses(
-    Trader* trader,
+    std::shared_ptr<Trader> trader,
     const std::vector< Trade<T> >& trades,
     std::vector< std::pair<Trade<T>, typename T::Ptr> >& responses) {
   throw StateError("Non-specialized version of "
@@ -57,15 +57,15 @@ inline static void PopulateTradeResponses(
 
 template<>
 inline void PopulateTradeResponses<Material>(
-    Trader* trader,
+    std::shared_ptr<Trader> trader,
     const std::vector< Trade<Material> >& trades,
     std::vector<std::pair<Trade<Material>, Material::Ptr> >& responses) {
-  dynamic_cast<Trader*>(trader)->GetMatlTrades(trades, responses);
+  std::dynamic_pointer_cast<Trader>(trader)->GetMatlTrades(trades, responses);
 }
 
 template<>
 inline void PopulateTradeResponses<Product>(
-    Trader* trader,
+    std::shared_ptr<Trader> trader,
     const std::vector< Trade<Product> >& trades,
     std::vector<std::pair<Trade<Product>, Product::Ptr> >& responses) {
   trader->GetProductTrades(trades, responses);
@@ -73,21 +73,21 @@ inline void PopulateTradeResponses<Product>(
 
 template<class T>
 inline static void AcceptTrades(
-    Trader* trader,
+    std::shared_ptr<Trader> trader,
     const std::vector< std::pair<Trade<T>, typename T::Ptr> >& responses) {
   throw StateError("Non-specialized version of AcceptTrades not supported");
 }
 
 template<>
 inline void AcceptTrades(
-    Trader* trader,
+    std::shared_ptr<Trader> trader,
     const std::vector< std::pair<Trade<Material>, Material::Ptr> >& responses) {
-  dynamic_cast<Trader*>(trader)->AcceptMatlTrades(responses);
+  std::dynamic_pointer_cast<Trader>(trader)->AcceptMatlTrades(responses);
 }
 
 template<>
 inline void AcceptTrades(
-    Trader* trader,
+    std::shared_ptr<Trader> trader,
     const std::vector< std::pair<Trade<Product>, Product::Ptr> >& responses) {
   trader->AcceptProductTrades(responses);
 }

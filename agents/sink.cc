@@ -34,7 +34,7 @@ Sink::GetMatlRequests() {
 
     std::vector<std::string>::const_iterator it;
     for (it = in_commods.begin(); it != in_commods.end(); ++it) {
-      port->AddRequest(mat, this, *it);
+      port->AddRequest(mat, Trader::shared_from_this(), *it);
     }
 
     ports.insert(port);
@@ -63,7 +63,7 @@ Sink::GetProductRequests() {
     for (it = in_commods.begin(); it != in_commods.end(); ++it) {
       std::string quality = "";  // not clear what this should be..
       Product::Ptr rsrc = Product::CreateUntracked(amt, quality);
-      port->AddRequest(rsrc, this, *it);
+      port->AddRequest(rsrc, Trader::shared_from_this(), *it);
     }
 
     ports.insert(port);

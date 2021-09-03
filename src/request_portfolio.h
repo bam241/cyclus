@@ -112,7 +112,7 @@ class RequestPortfolio
   /// bidder may evaluate many potential resources.
   /// @throws KeyError if a request is added from a different requester than the
   /// original or if the request quantity is different than the original
-  Request<T>* AddRequest(boost::shared_ptr<T> target, Trader* requester,
+  Request<T>* AddRequest(boost::shared_ptr<T> target, std::shared_ptr<Trader> requester,
                          std::string commodity, double preference,
                          bool exclusive, cost_function_t cost_function) {
     Request<T>* r =
@@ -135,7 +135,7 @@ class RequestPortfolio
   /// i.e., in its entirety by a single offer
   /// @throws KeyError if a request is added from a different requester than the
   /// original or if the request quantity is different than the original
-  Request<T>* AddRequest(boost::shared_ptr<T> target, Trader* requester,
+  Request<T>* AddRequest(boost::shared_ptr<T> target, std::shared_ptr<Trader> requester,
                          std::string commodity = "",
                          double preference = kDefaultPref,
                          bool exclusive = false) {
@@ -169,7 +169,7 @@ class RequestPortfolio
 
   /// @return the agent associated with the portfolio. if no reqeusts have
   /// been added, the requester is NULL.
-  inline Trader* requester() const { return requester_; }
+  inline std::shared_ptr<Trader> requester() const { return requester_; }
 
   /// @return the request quantity associated with the portfolio.
   ///
@@ -231,7 +231,7 @@ class RequestPortfolio
 
   /// the total quantity of resources assocaited with the portfolio
   double qty_;
-  Trader* requester_;
+  std::shared_ptr<Trader> requester_;
 };
 
 }  // namespace cyclus

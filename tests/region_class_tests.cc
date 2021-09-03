@@ -27,13 +27,13 @@ class DieInst : public cyclus::Institution {
 
   virtual void Tick() {
     if (tickDie_) {
-      context()->DelAgent(this);
+      context()->DelAgent(Agent::shared_from_this());
     }
   }
 
   virtual void Tock() {
     if (tockDie_) {
-      context()->DelAgent(this);
+      context()->DelAgent(Agent::shared_from_this());
     }
   }
 
@@ -44,13 +44,13 @@ class DieInst : public cyclus::Institution {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class RegionClassTests : public ::testing::Test {
  protected:
-  DieInst* child1_;
-  DieInst* child2_;
-  DieInst* child3_;
-  DieInst* child4_;
-  DieInst* child5_;
+  std::shared_ptr<DieInst> child1_;
+  std::shared_ptr<DieInst> child2_;
+  std::shared_ptr<DieInst> child3_;
+  std::shared_ptr<DieInst> child4_;
+  std::shared_ptr<DieInst> child5_;
 
-  cyclus::Region* reg_;
+  std::shared_ptr<cyclus::Region> reg_;
   cyclus::Recorder rec_;
   cyclus::Timer ti_;
   cyclus::Context* ctx_;
@@ -58,13 +58,13 @@ class RegionClassTests : public ::testing::Test {
   virtual void SetUp() {
     ctx_ = new cyclus::Context(&ti_, &rec_);
 
-    child1_ = new DieInst(ctx_);
-    child2_ = new DieInst(ctx_);
-    child3_ = new DieInst(ctx_);
-    child4_ = new DieInst(ctx_);
-    child5_ = new DieInst(ctx_);
+    child1_ = std::shared_ptr<DieInst>(new DieInst(ctx_));
+    child2_ = std::shared_ptr<DieInst>(new DieInst(ctx_));
+    child3_ = std::shared_ptr<DieInst>(new DieInst(ctx_));
+    child4_ = std::shared_ptr<DieInst>(new DieInst(ctx_));
+    child5_ = std::shared_ptr<DieInst>(new DieInst(ctx_));
 
-    reg_ = new TestRegion(ctx_);
+    reg_ = std::shared_ptr<cyclus::Region>(new TestRegion(ctx_));
     child1_->Build(reg_);
     child2_->Build(reg_);
     child3_->Build(reg_);

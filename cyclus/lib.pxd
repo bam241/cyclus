@@ -16,11 +16,11 @@ from cyclus cimport cpp_jsoncpp
 from cyclus cimport cpp_cyclus
 from cyclus.cpp_stringstream cimport stringstream
 
-ctypedef cpp_cyclus.Agent* agent_ptr
-ctypedef cpp_cyclus.Region* region_ptr
-ctypedef cpp_cyclus.Institution* institution_ptr
-ctypedef cpp_cyclus.Facility* facility_ptr
-cdef cpp_cyclus.Agent* dynamic_agent_ptr(object)
+ctypedef shared_ptr[Agent] agent_ptr
+ctypedef shared_ptr[Region] region_ptr
+ctypedef shared_ptr[Institution] institution_ptr
+ctypedef shared_ptr[Facility] facility_ptr
+cdef shared_ptr[Agent] dynamic_agent_ptr(object)
 
 cdef class _Datum:
     cdef void * ptx

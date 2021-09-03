@@ -1,6 +1,7 @@
 #ifndef CYCLUS_SRC_TIMER_H_
 #define CYCLUS_SRC_TIMER_H_
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -46,11 +47,11 @@ class Timer {
 
   /// Schedules the named prototype to be built for the specified parent at
   /// timestep t.
-  void SchedBuild(Agent* parent, std::string proto_name, int t);
+  void SchedBuild(std::shared_ptr<Agent> parent, std::string proto_name, int t);
 
   /// Schedules the given Agent to be decommissioned at the specified
   /// timestep t.
-  void SchedDecom(Agent* m, int time);
+  void SchedDecom(std::shared_ptr<Agent> m, int time);
 
   /// Schedules a snapshot of simulation state to output database to occur at
   /// the beginning of the next timestep.
@@ -89,8 +90,8 @@ class Timer {
   /// notifications.
   void DoDecision();
 
-  void RecordInventories(Agent* a);
-  void RecordInventory(Agent* a, std::string name, Material::Ptr m);
+  void RecordInventories(std::shared_ptr<Agent> a);
+  void RecordInventory(std::shared_ptr<Agent> a, std::string name, Material::Ptr m);
 
   /// decommissions all agents queued for the current timestep.
   void DoDecom();
@@ -110,10 +111,10 @@ class Timer {
   std::map<int, TimeListener*> tickers_;
 
   // std::map<time,std::vector<std::pair<prototype, parent> > >
-  std::map<int, std::vector<std::pair<std::string, Agent*> > > build_queue_;
+  std::map<int, std::vector<std::pair<std::string, std::shared_ptr<Agent>> > > build_queue_;
 
   // std::map<time,std::vector<config> >
-  std::map<int, std::vector<Agent*> > decom_queue_;
+  std::map<int, std::vector<std::shared_ptr<Agent>> > decom_queue_;
 };
 
 }  // namespace cyclus

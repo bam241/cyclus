@@ -115,13 +115,21 @@ class AgentAnnotations(Action):
     """Displays an agent annotations"""
 
     def __call__(self, parser, ns, values, option_string=None):
+        print("Annotation1")
         ns.agent_annotations = values
+        print("Annotation2")
         agent, ctx = make_agent_ctx(ns.agent_annotations)
+        print("Annotation3")
         anno = agent.annotations
+        print("Annotation4")
         writer = CustomWriter("{", "}", "[", "]", ": ", ", ", " ", 80)
+        print("Annotation5")
         s = writer.write(anno)
+        print("Annotation6")
         print(s.rstrip())
+        print("Annotation7")
         ctx.del_agent(agent)
+        print("Annotation8")
 
 
 class AgentListing(Action):
@@ -308,88 +316,123 @@ def make_parser():
     """Makes the Cyclus CLI parser."""
     p = ArgumentParser("cyclus", description="Cyclus command line "
                                              "(from Python)")
+    print("parser1")
     p.add_argument('-V', action=CyclusVersion,
                    help='print cyclus core and dependency versions')
+    print("parser2")
     p.add_argument('--restart', action=Restart,
                    help='restart from the specified simulation snapshot, '
                         'not supported.')
+    print("parser3")
     p.add_argument('--schema', action=Schema,
                    help='dump the cyclus master schema including all '
                         'installed module schemas')
+    print("parser4")
     p.add_argument('--agent-schema', action=AgentSchema,
                    dest='agent_schema',
                    help='dump the schema for the named agent')
+    print("parser5")
     p.add_argument('--agent-version', action=AgentVersion,
                    dest='agent_version',
                    help='dump the version for the named agent')
+    print("parser6")
     p.add_argument('--schema-path', dest='schema_path', default=None,
                    help='manually specify the path to the cyclus master schema')
+    print("parser7")
     p.add_argument('--flat-schema', action='store_true', default=False,
                    dest='flat_schema',
                    help='use the flat master simulation schema')
+    print("parser8")
     p.add_argument('--agent-annotations', action=AgentAnnotations,
                    dest='agent_annotations',
                    help='dump the annotations for the named agent')
+    print("parser9")
     p.add_argument('-l', '--agent-listing', action=AgentListing,
                    dest='agent_listing',
                    help='dump the agents in a library')
+    print("parser10")
     p.add_argument('-a', '--all-agent-listing', action=AllAgentListing,
                    help='dump all the agents cyclus knows about')
+    print("parser11")
     p.add_argument('-m', '--metadata', action=Metadata,
                    help='dump metadata for all the agents cyclus knows about')
+    print("parser12")
     p.add_argument('--no-agent', action=NoAgent,
                    help='only print log entries from cyclus core code')
+    print("parser13")
     p.add_argument('--no-mem', action=NoMem,
                    help='exclude memory log statement from logger output')
+    print("parser14")
     p.add_argument('-v', '--verb', action=Verbosity, dest='verbosity',
                    help='log verbosity. integer from 0 (quiet) to 11 (verbose)')
+    print("parser15")
     p.add_argument('-o', '--output-path', dest='output_path',
                    default='cyclus.sqlite', help='output path')
+    print("parser16")
     p.add_argument('--input-file', dest='input_file', default=None,
                    help="path to input file")
+    print("parser17")
     p.add_argument('--warn-limit', dest='warn_limit', action=WarnLimit,
                    help='number of warnings to issue per kind, defaults to 42')
+    print("parser18")
     p.add_argument('--warn-as-error', action=WarnAsError,
                    help='throw errors when warnings are issued')
+    print("parser110")
     p.add_argument('-p', '--path', action=CyclusPath,
                    help='print the CYCLUS_PATH')
+    print("parser111")
     p.add_argument('--include', action=IncludePath,
                    help='print the cyclus include directory')
+    print("parser112")
     p.add_argument('--install-path', action=InstallPath,
                    help='print the cyclus install directory')
+    print("parser113")
     p.add_argument('--cmake-module-path', action=CMakeModulePath,
                    help='print the cyclus CMake module path')
+    print("parser114")
     p.add_argument('--build-path', action=BuildPath,
                    help='print the cyclus build directory')
+    print("parser115")
     p.add_argument('--rng-schema', action=RngSchema,
                    help='print the path to cyclus.rng.in')
+    print("parser116")
     p.add_argument('--rng-print', action=RngPrint,
                    help='print the master schema for the input simulation')
+    print("parser117")
     p.add_argument('--nuc-data', action=NucData,
                    help='print the path to cyclus_nuc_data.h5')
+    print("parser118")
     p.add_argument('--json-to-xml', action=JsonToXml,
                    dest='json_to_xml', default=None,
                    help='*.json input file')
+    print("parser119")
     p.add_argument('--xml-to-json', action=XmlToJson,
                    dest='xml_to_json', default=None,
                    help='*.xml input file')
+    print("parser120")
     p.add_argument('--json-to-py', action=JsonToPy,
                    dest='json_to_py', default=None,
                    help='*.json input file')
+    print("parser121")
     p.add_argument('--py-to-json', action=PyToJson,
                    dest='py_to_json', default=None,
                    help='*.py input file')
+    print("parser122")
     p.add_argument('--py-to-xml', action=PyToXml,
                    dest='py_to_xml', default=None,
                    help='*.py input file')
+    print("parser123")
     p.add_argument('--xml-to-py', action=XmlToPy,
                    dest='xml_to_py', default=None,
                    help='*.xml input file')
+    print("parser124")
     p.add_argument('-f', '--format', dest='format', default=None,
                    help="specifies the input file format from one of: "
                         "none, xml, json, or py.")
+    print("parser125")
     p.add_argument('input_file', nargs='?',
                    help='path to input file')
+    print("parser126")
     return p
 
 
@@ -417,14 +460,22 @@ def print_master_schema(ns):
 
 def main(args=None):
     """Main function for Cyclus CLI"""
+    print("main1")
     ensure_close_dynamic_modules()
+    print("main2")
     Env.set_nuc_data_path()
+    print("main3")
     p = make_parser()
+    print("main4")
     ns = p.parse_args(args=args)
+    print("main5", flush=True)
     if(ns.rng_print):
+        print("main6")
         print_master_schema(ns)
     elif ns.input_file is not None:
+        print("main7")
         run_simulation(ns)
+    print("main8")
 
 
 if __name__ == '__main__':

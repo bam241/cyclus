@@ -2,6 +2,7 @@
 #define CYCLUS_SRC_CONTEXT_H_
 
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <stdint.h>
@@ -152,8 +153,8 @@ class Context {
   /// @param overwrite, allow overwrites to the prototype listing, default: false
   /// @throws if overwrite is false and a prototype name has already been added
   /// @{
-  void AddPrototype(std::string name, Agent* m);
-  void AddPrototype(std::string name, Agent* m, bool overwrite);
+  void AddPrototype(std::string name, std::shared_ptr<Agent> m);
+  void AddPrototype(std::string name, std::shared_ptr<Agent> m, bool overwrite);
   /// @}
 
   /// Registers an agent as a participant in resource exchanges. Agents should
@@ -177,16 +178,17 @@ class Context {
   ///
   /// @warning this method should generally NOT be used by agents.
   template <class T>
-  T* CreateAgent(std::string proto_name) {
+  std::shared_ptr<T> CreateAgent(std::string proto_name) {
     if (protos_.count(proto_name) == 0) {
       throw KeyError("Invalid prototype name " + proto_name);
     }
 
-    Agent* m = protos_[proto_name];
-    T* casted(NULL);
-    Agent* clone = m->Clone();
-    casted = dynamic_cast<T*>(clone);
-    if (casted == NULL) {
+    std::shared_ptr<Agent> m = protos_[proto_name];
+    std::shared_ptr<T> casted;
+    Agent* clone_ptr = m->Clone();
+    std::shared_ptr<Agent> clone(clone_ptr);
+    casted = std::dynamic_pointer_cast<T>(clone);
+    if (casted == nullptr) {
       PyDelAgent(clone->id());
       DelAgent(clone);
       throw CastError("Invalid cast for prototype " + proto_name);
@@ -197,17 +199,17 @@ class Context {
   /// Destructs and cleans up m (and it's children recursively).
   ///
   /// @warning this method should generally NOT be used by agents.
-  void DelAgent(Agent* m);
+  void DelAgent(std::shared_ptr<Agent> m);
 
   /// Schedules the named prototype to be built for the specified parent at
   /// timestep t. The default t=-1 results in the build being scheduled for the
   /// next build phase (i.e. the start of the next timestep).
-  void SchedBuild(Agent* parent, std::string proto_name, int t = -1);
+  void SchedBuild(std::shared_ptr<Agent> parent, std::string proto_name, int t = -1);
 
   /// Schedules the given Agent to be decommissioned at the specified timestep
   /// t. The default t=-1 results in the decommission being scheduled for the
   /// next decommission phase (i.e. the end of the current timestep).
-  void SchedDecom(Agent* m, int time = -1);
+  void SchedDecom(std::shared_ptr<Agent> m, int time = -1);
 
   /// Adds a composition recipe to a simulation-wide accessible list.
   /// Agents should NOT add their own recipes.
@@ -285,13 +287,13 @@ class Context {
 
  private:
   /// Registers an agent as a participant in the simulation.
-  inline void RegisterAgent(Agent* a) {
+  inline void RegisterAgent(std::shared_ptr<Agent> a) {
     n_prototypes_[a->prototype()]++;
     n_specs_[a->spec()]++;
   }
 
   /// Unregisters an agent as a participant in the simulation.
-  inline void UnregisterAgent(Agent* a) {
+  inline void UnregisterAgent(std::shared_ptr<Agent> a) {
     n_prototypes_[a->prototype()]--;
     n_specs_[a->spec()]--;
   }
@@ -300,9 +302,9 @@ class Context {
   /// been recorded in the db
   std::set<std::string> rec_ver_;
 
-  std::map<std::string, Agent*> protos_;
+  std::map<std::string, std::shared_ptr<Agent>> protos_;
   std::map<std::string, Composition::Ptr> recipes_;
-  std::set<Agent*> agent_list_;
+  std::set<std::shared_ptr<Agent>> agent_list_;
   std::set<Trader*> traders_;
   std::map<std::string, int> n_prototypes_;
   std::map<std::string, int> n_specs_;

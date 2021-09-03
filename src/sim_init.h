@@ -51,7 +51,7 @@ class SimInit {
   /// Records a snapshot of the agent's current internal state into the
   /// simulation's output database.  Note that this should generally not be
   /// called directly.
-  static void SnapAgent(Agent* m);
+  static void SnapAgent(std::shared_ptr<Agent> m);
 
   /// Returns the initialized context. Note that either Init, Restart, or Branch
   /// must be called first.
@@ -96,8 +96,8 @@ class SimInit {
   static Product::Ptr LoadProduct(Context* ctx, QueryableBackend* b, int resid);
   static Composition::Ptr LoadComposition(QueryableBackend* b, int stateid);
 
-  // std::map<AgentId, Agent*>
-  std::map<int, Agent*> agents_;
+  // std::map<AgentId, std::shared_ptr<Agent>>
+  std::map<int, std::shared_ptr<Agent>> agents_;
 
   Context* ctx_;
   Recorder* rec_;

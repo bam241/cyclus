@@ -107,19 +107,26 @@ cdef class _Datum:
         """
         cdef int i, n
         cdef std_vector[int] cpp_shape
+        cdef cpp_cyclus.hold_any v
         if type is None:
             raise TypeError('a database or C++ type must be supplied to add a '
                             'value to the datum, got None.')
-        cdef cpp_cyclus.hold_any v = py_to_any(value, type)
+        print(1)
+        print(value, type)
+        v = py_to_any(value, type)
+        print(2)
         if isinstance(field, str):
             field = field.encode()
         elif isinstance(field, bytes):
             pass
         else:
             raise ValueError('field name must be str or bytes.')
+        print(3)
         # have to keep refs around so don't dealloc field names
         self._fields.append(field)
+        print(4)
         cdef char* cpp_field = <char*> field
+        print(5)
         if shape is None:
             (<cpp_cyclus.Datum*> self.ptx).AddVal(cpp_field, v)
         else:
@@ -128,6 +135,7 @@ cdef class _Datum:
             for i in range(n):
                 cpp_shape[i] = <int> shape[i]
             (<cpp_cyclus.Datum*> self.ptx).AddVal(cpp_field, v, &cpp_shape)
+        print(6)
         return self
 
     def record(self):

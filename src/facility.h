@@ -1,6 +1,7 @@
 #ifndef CYCLUS_SRC_FACILITY_H_
 #define CYCLUS_SRC_FACILITY_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <set>
@@ -84,11 +85,11 @@ class Facility : public TimeListener, public Agent, public Trader {
   /// Any facility subclassing facility agent should invoke their own InitFrom
   /// method, calling Facility's first!
   /// @param m the agent to copy from
-  void InitFrom(Facility* m);
+  void InitFrom(std::shared_ptr<Facility> m);
 
   /// @brief builds the facility in the simulation
   /// @param parent the parent of this facility
-  virtual void Build(Agent* parent);
+  virtual void Build(std::shared_ptr<Agent> parent);
 
   /// Called to give the agent an opportunity to register for services.
   virtual void EnterNotify();

@@ -77,10 +77,10 @@ void SimInit::Snapshot(Context* ctx) {
      ->Record();
 
   // snapshot all agent internal state
-  std::set<Agent*> mlist = ctx->agent_list_;
-  std::set<Agent*>::iterator it;
+  std::set<std::shared_ptr<Agent>> mlist = ctx->agent_list_;
+  std::set<std::shared_ptr<Agent>>::iterator it;
   for (it = mlist.begin(); it != mlist.end(); ++it) {
-    Agent* m = *it;
+    std::shared_ptr<Agent> m = *it;
     if (m->enter_time() != -1) {
       SimInit::SnapAgent(m);
     }
@@ -119,7 +119,7 @@ void SimInit::Snapshot(Context* ctx) {
       ->Record();
 }
 
-void SimInit::SnapAgent(Agent* m) {
+void SimInit::SnapAgent(std::shared_ptr<Agent> m) {
   // call manually without agent impl injected to keep all Agent state in a
   // single, consolidated db table
   m->Agent::Snapshot(DbInit(m, true));
@@ -304,7 +304,7 @@ void SimInit::LoadPrototypes() {
     std::string impl = qr.GetVal<std::string>("Spec", i);
     AgentSpec spec(impl);
 
-    Agent* m = DynamicModule::Make(ctx_, spec);
+    std::shared_ptr<Agent> m = DynamicModule::Make(ctx_, spec);
     m->id_ = agentid;
 
     // note that we don't filter by SimTime here because prototypes remain
@@ -335,7 +335,7 @@ void SimInit::LoadInitialAgents() {
   conds.push_back(Cond("EnterTime", "<=", t_));
   QueryResult qentry = b_->Query("AgentEntry", &conds);
   std::map<int, int> parentmap;  // map<agentid, parentid>
-  std::map<int, Agent*> unbuilt;  // map<agentid, agent_ptr>
+  std::map<int, std::shared_ptr<Agent>> unbuilt;  // map<agentid, agent_ptr>
   for (int i = 0; i < qentry.rows.size(); ++i) {
     if (t_ > 0 && qentry.GetVal<int>("EnterTime", i) == t_) {
       // agent is scheduled to be built already
@@ -357,7 +357,7 @@ void SimInit::LoadInitialAgents() {
     std::string proto = qentry.GetVal<std::string>("Prototype", i);
     std::string impl = qentry.GetVal<std::string>("Spec", i);
     AgentSpec spec(impl);
-    Agent* m = DynamicModule::Make(ctx_, spec);
+    std::shared_ptr<Agent> m = DynamicModule::Make(ctx_, spec);
 
     // agent-kernel init
     m->prototype_ = proto;
@@ -377,11 +377,11 @@ void SimInit::LoadInitialAgents() {
   }
 
   // construct agent hierarchy starting at roots (no parent) down
-  std::map<int, Agent*>::iterator it = unbuilt.begin();
-  std::vector<Agent*> enter_list;
+  std::map<int, std::shared_ptr<Agent>>::iterator it = unbuilt.begin();
+  std::vector<std::shared_ptr<Agent>> enter_list;
   while (unbuilt.size() > 0) {
     int id = it->first;
-    Agent* m = it->second;
+    std::shared_ptr<Agent> m = it->second;
     int parentid = parentmap[id];
 
     if (parentid == -1) {  // root agent
@@ -412,9 +412,9 @@ void SimInit::LoadInitialAgents() {
 }
 
 void SimInit::LoadInventories() {
-  std::map<int, Agent*>::iterator it;
+  std::map<int, std::shared_ptr<Agent>>::iterator it;
   for (it = agents_.begin(); it != agents_.end(); ++it) {
-    Agent* m = it->second;
+    std::shared_ptr<Agent> m = it->second;
     std::vector<Cond> conds;
     conds.push_back(Cond("SimTime", "==", t_));
     conds.push_back(Cond("AgentId", "==", m->id()));
@@ -553,7 +553,7 @@ Material::Ptr SimInit::LoadMaterial(Context* ctx, QueryableBackend* b, int state
 
   // create the composition and material
   Composition::Ptr comp = LoadComposition(b, stateid);
-  Agent* dummy = new Dummy(ctx);
+  std::shared_ptr<Agent> dummy = new Dummy(ctx);
   Material::Ptr mat = Material::Create(dummy, qty, comp);
   mat->prev_decay_time_ = prev_decay;
   ctx->DelAgent(dummy);
@@ -594,7 +594,7 @@ Product::Ptr SimInit::LoadProduct(Context* ctx, QueryableBackend* b, int state_i
   // set static quality-stateid map to have same vals as db
   Product::qualids_[quality] = stateid;
 
-  Agent* dummy = new Dummy(ctx);
+  std::shared_ptr<Agent> dummy = new Dummy(ctx);
   Product::Ptr r = Product::Create(dummy, qty, quality);
   ctx->DelAgent(dummy);
   return r;

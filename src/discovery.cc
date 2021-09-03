@@ -157,7 +157,7 @@ Json::Value DiscoverMetadataInCyclusPath() {
 
   for (it = specs.begin(); it != specs.end(); ++it) {
     s = *it;
-    Agent* m = DynamicModule::Make(ctx, s);
+    std::shared_ptr<Agent> m = DynamicModule::Make(ctx, s);
     spec.append(s);
     anno[s] = m->annotations();
     schm[s] = m->schema();

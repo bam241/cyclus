@@ -30,7 +30,9 @@ def test_main():
         ]
     for case in cases:
         try:
+            print("Case:", case)
             main(args=case)
+            print("Case:", case, ".. Done")
             res = True
         except Exception:
             res = False

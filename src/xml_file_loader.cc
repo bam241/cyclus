@@ -106,7 +106,7 @@ std::string BuildMasterSchema(std::string schema_path, std::string infile, std::
   subschemas["facility"] = "";
 
   for (int i = 0; i < specs.size(); ++i) {
-    Agent* m = DynamicModule::Make(&ctx, specs[i]);
+    std::shared_ptr<Agent> m = DynamicModule::Make(&ctx, specs[i]);
     subschemas[m->kind()] += "<element name=\"" + specs[i].alias() + "\">\n";
     subschemas[m->kind()] += m->schema() + "\n";
     subschemas[m->kind()] += "</element>\n";
@@ -352,7 +352,7 @@ void XMLFileLoader::LoadInitialAgents() {
       std::string alias = qe->SubTree("config")->GetElementName(0);
       AgentSpec spec = specs_[alias];
 
-      Agent* agent = DynamicModule::Make(ctx_, spec);
+      std::shared_ptr<Agent> agent = DynamicModule::Make(ctx_, spec);
 
       // call manually without agent impl injected to keep all Agent state in a
       // single, consolidated db table
@@ -382,13 +382,13 @@ void XMLFileLoader::LoadInitialAgents() {
   for (int i = 0; i < nregions; ++i) {
     InfileTree* qe = xqe.SubTree(schema_paths["Region"], i);
     std::string region_proto = qe->GetString("name");
-    Agent* reg = BuildAgent(region_proto, NULL);
+    std::shared_ptr<Agent> reg = BuildAgent(region_proto, NULL);
 
     int ninsts = qe->NMatches("institution");
     for (int j = 0; j < ninsts; ++j) {
       InfileTree* qe2 = qe->SubTree("institution", j);
       std::string inst_proto = qe2->GetString("name");
-      Agent* inst = BuildAgent(inst_proto, reg);
+      std::shared_ptr<Agent> inst = BuildAgent(inst_proto, reg);
 
       int nfac = qe2->NMatches("initialfacilitylist/entry");
       for (int k = 0; k < nfac; ++k) {
@@ -397,15 +397,15 @@ void XMLFileLoader::LoadInitialAgents() {
 
         int number = atoi(qe3->GetString("number").c_str());
         for (int z = 0; z < number; ++z) {
-          Agent* fac = BuildAgent(fac_proto, inst);
+          std::shared_ptr<Agent> fac = BuildAgent(fac_proto, inst);
         }
       }
     }
   }
 }
 
-Agent* XMLFileLoader::BuildAgent(std::string proto, Agent* parent) {
-  Agent* m = ctx_->CreateAgent<Agent>(proto);
+std::shared_ptr<Agent> XMLFileLoader::BuildAgent(std::string proto, std::shared_ptr<Agent> parent) {
+  std::shared_ptr<Agent> m = ctx_->CreateAgent<Agent>(proto);
   m->Build(parent);
   if (parent != NULL) {
     parent->BuildNotify(m);

@@ -16,7 +16,7 @@ namespace cyclus {
 // static members
 int Agent::next_id_ = 0;
 
-void Agent::InitFrom(Agent* m) {
+void Agent::InitFrom(std::shared_ptr<Agent> m) {
   prototype_ = m->prototype_;
   kind_ = m->kind_;
   spec_ = m->spec_;
@@ -65,21 +65,21 @@ Agent::Agent(Context* ctx)
       lifetime_(-1),
       parent_(NULL),
       spec_("UNSPECIFIED") {
-  ctx_->agent_list_.insert(this);
-  MLOG(LEV_DEBUG3) << "Agent ID=" << id_ << ", ptr=" << this << " created.";
+  ctx_->agent_list_.insert(shared_from_this());
+  MLOG(LEV_DEBUG3) << "Agent ID=" << id_ << ", ptr=" <<shared_from_this() << " created.";
 }
 
 Agent::~Agent() {
   MLOG(LEV_DEBUG3) << "Deleting agent '" << prototype() << "' ID=" << id_;
-  context()->agent_list_.erase(this);
+  context()->agent_list_.erase(shared_from_this());
 
-  std::set<Agent*>::iterator it;
+  std::set<std::shared_ptr<Agent>>::iterator it;
   if (parent_ != NULL) {
     CLOG(LEV_DEBUG2) << "Agent '" << parent_->prototype() << "' ID="
                      << parent_->id()
                      << " has removed child '" << prototype() << "' ID="
                      << id() << " from its list of children.";
-    it = find(parent_->children_.begin(), parent_->children_.end(), this);
+    it = find(parent_->children_.begin(), parent_->children_.end(),shared_from_this());
     if (it != parent_->children_.end()) {
       parent_->children_.erase(it);
     }
@@ -87,7 +87,7 @@ Agent::~Agent() {
 
   // set children's parents to NULL
   for (it = children_.begin(); it != children_.end(); ++it) {
-    Agent* child = *it;
+    std::shared_ptr<Agent> child = *it;
     child->parent_ = NULL;
     child->parent_id_ = -1;
   }
@@ -126,31 +126,31 @@ void Agent::lifetime_force(int n_timesteps) {
   }
 }
 
-bool Agent::AncestorOf(Agent* other) {
+bool Agent::AncestorOf(std::shared_ptr<Agent> other) {
   other = other->parent();
   while (other != NULL) {
-    if (this == other)
+    if (shared_from_this() == other)
       return true;
     other = other->parent();
   }
   return false;
 }
 
-bool Agent::DecendentOf(Agent* other) {
-  const std::set<Agent*>& children = other->children();
-  std::set<Agent*>::const_iterator it = children.begin();
+bool Agent::DecendentOf(std::shared_ptr<Agent> other) {
+  const std::set<std::shared_ptr<Agent>>& children = other->children();
+  std::set<std::shared_ptr<Agent>>::const_iterator it = children.begin();
   for (; it != children.end(); ++it) {
-    if (this == *(it) || this->DecendentOf(*(it)))
+    if (shared_from_this() == *(it) ||shared_from_this()->DecendentOf(*(it)))
       return true;
   }
   return false;
 }
 
-bool Agent::InFamilyTree(Agent* other) {
-  return (this == other) || AncestorOf(other) || DecendentOf(other);
+bool Agent::InFamilyTree(std::shared_ptr<Agent> other) {
+  return (shared_from_this() == other) || AncestorOf(other) || DecendentOf(other);
 }
 
-void Agent::Build(Agent* parent) {
+void Agent::Build(std::shared_ptr<Agent> parent) {
   CLOG(LEV_DEBUG1) << "Agent '" << prototype()
                    << "' is entering the simulation.";
   CLOG(LEV_DEBUG3) << "It has:";
@@ -160,43 +160,43 @@ void Agent::Build(Agent* parent) {
   Connect(parent);
   enter_time_ = ctx_->time();
   EnterNotify();
-  this->AddToTable();
+ shared_from_this()->AddToTable();
 }
 
 void Agent::EnterNotify() {
-  ctx_->RegisterAgent(this);
+  ctx_->RegisterAgent(shared_from_this());
 }
 
-void Agent::Connect(Agent* parent) {
-  if (parent == this) {
+void Agent::Connect(std::shared_ptr<Agent> parent) {
+  if (parent ==shared_from_this()) {
     throw KeyError("Agent " + prototype() +
                    "is trying to add itself as its own child.");
   }
   if (parent != NULL) {
     parent_ = parent;
     parent_id_ = parent->id();
-    parent->children_.insert(this);
+    parent->children_.insert(shared_from_this());
   }
 }
 
 void Agent::Decommission() {
-  CLOG(LEV_INFO3) << prototype() << "(" << this << ")"
+  CLOG(LEV_INFO3) << prototype() << "(" <<shared_from_this() << ")"
                   << " is being decommissioned";
   ctx_->NewDatum("AgentExit")
       ->AddVal("AgentId", id())
       ->AddVal("ExitTime", ctx_->time())
       ->Record();
-  ctx_->UnregisterAgent(this);
-  ctx_->DelAgent(this);
+  ctx_->UnregisterAgent(shared_from_this());
+  ctx_->DelAgent(shared_from_this());
 }
 
 std::string Agent::PrintChildren() {
   std::stringstream ss("");
   ss << "Children of " << prototype() << ":" << std::endl;
 
-  std::set<Agent*>::iterator it;
+  std::set<std::shared_ptr<Agent>>::iterator it;
   for (it = children_.begin(); it != children_.end(); ++it) {
-    Agent* child = *it;
+    std::shared_ptr<Agent> child = *it;
     std::vector<std::string> print_outs = GetTreePrintOuts(child);
     for (int j = 0; j < print_outs.size(); j++) {
       ss << "\t" << print_outs.at(j);
@@ -205,14 +205,14 @@ std::string Agent::PrintChildren() {
   return ss.str();
 }
 
-std::vector<std::string> Agent::GetTreePrintOuts(Agent* m) {
+std::vector<std::string> Agent::GetTreePrintOuts(std::shared_ptr<Agent> m) {
   std::vector<std::string> ret;
   std::stringstream ss("");
   ss << m->prototype() << std::endl;
   ret.push_back(ss.str());
-  std::set<Agent*>::iterator it;
+  std::set<std::shared_ptr<Agent>>::iterator it;
   for (it = children_.begin(); it != children_.end(); ++it) {
-    Agent* child = *it;
+    std::shared_ptr<Agent> child = *it;
     std::vector<std::string> outs = GetTreePrintOuts(child);
     for (int j = 0; j < outs.size(); j++) {
       ss.str("");

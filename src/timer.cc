@@ -61,10 +61,10 @@ void Timer::RunSim() {
 
 void Timer::DoBuild() {
   // build queued agents
-  std::vector<std::pair<std::string, Agent*> > build_list = build_queue_[time_];
+  std::vector<std::pair<std::string, std::shared_ptr<Agent>> > build_list = build_queue_[time_];
   for (int i = 0; i < build_list.size(); ++i) {
-    Agent* m = ctx_->CreateAgent<Agent>(build_list[i].first);
-    Agent* parent = build_list[i].second;
+    std::shared_ptr<Agent> m = ctx_->CreateAgent<Agent>(build_list[i].first);
+    std::shared_ptr<Agent> parent = build_list[i].second;
     CLOG(LEV_INFO3) << "Building a " << build_list[i].first
                     << " from parent " << build_list[i].second;
     m->Build(parent);
@@ -98,10 +98,10 @@ void Timer::DoTock() {
   }
 
   if (si_.explicit_inventory || si_.explicit_inventory_compact) {
-    std::set<Agent*> ags = ctx_->agent_list_;
-    std::set<Agent*>::iterator it;
+    std::set<std::shared_ptr<Agent>> ags = ctx_->agent_list_;
+    std::set<std::shared_ptr<Agent>>::iterator it;
     for (it = ags.begin(); it != ags.end(); ++it) {
-      Agent* a = *it;
+      std::shared_ptr<Agent> a = *it;
       if (a->enter_time() == -1) {
         continue; // skip agents that aren't alive
       }
@@ -118,7 +118,7 @@ void Timer::DoDecision() {
   }
 }
 
-void Timer::RecordInventories(Agent* a) {
+void Timer::RecordInventories(std::shared_ptr<Agent> a) {
   Inventories invs = a->SnapshotInv();
   Inventories::iterator it2;
   for (it2 = invs.begin(); it2 != invs.end(); ++it2) {
@@ -136,7 +136,7 @@ void Timer::RecordInventories(Agent* a) {
   }
 }
 
-void Timer::RecordInventory(Agent* a, std::string name, Material::Ptr m) {
+void Timer::RecordInventory(std::shared_ptr<Agent> a, std::string name, Material::Ptr m) {
   if (si_.explicit_inventory) {
     CompMap c = m->comp()->mass();
     compmath::Normalize(&c, m->quantity());
@@ -169,9 +169,9 @@ void Timer::RecordInventory(Agent* a, std::string name, Material::Ptr m) {
 
 void Timer::DoDecom() {
   // decommission queued agents
-  std::vector<Agent*> decom_list = decom_queue_[time_];
+  std::vector<std::shared_ptr<Agent>> decom_list = decom_queue_[time_];
   for (int i = 0; i < decom_list.size(); ++i) {
-    Agent* m = decom_list[i];
+    std::shared_ptr<Agent> m = decom_list[i];
     if (m->parent() != NULL) {
       m->parent()->DecomNotify(m);
     }
@@ -187,14 +187,14 @@ void Timer::UnregisterTimeListener(TimeListener* tl) {
   tickers_.erase(tl->id());
 }
 
-void Timer::SchedBuild(Agent* parent, std::string proto_name, int t) {
+void Timer::SchedBuild(std::shared_ptr<Agent> parent, std::string proto_name, int t) {
   if (t <= time_) {
     throw ValueError("Cannot schedule build for t < [current-time]");
   }
   build_queue_[t].push_back(std::make_pair(proto_name, parent));
 }
 
-void Timer::SchedDecom(Agent* m, int t) {
+void Timer::SchedDecom(std::shared_ptr<Agent> m, int t) {
   if (t < time_) {
     throw ValueError("Cannot schedule decommission for t < [current-time]");
   }
@@ -204,11 +204,11 @@ void Timer::SchedDecom(Agent* m, int t) {
   // - the duplicate entries will result in a double delete attempt and
   // segfaults and otherwise bad things.  Remove previous decommissionings
   // before scheduling this new one.
-  std::map<int, std::vector<Agent*> >::iterator it;
+  std::map<int, std::vector<std::shared_ptr<Agent>> >::iterator it;
   bool done = false;
   for (it = decom_queue_.begin(); it != decom_queue_.end(); ++it) {
     int t = it->first;
-    std::vector<Agent*> ags = it->second;
+    std::vector<std::shared_ptr<Agent>> ags = it->second;
     for (int i = 0; i < ags.size(); i++) {
       if (ags[i] == m) {
         CLOG(LEV_WARN) << "scheduled over previous decommissioning of " << m->id();

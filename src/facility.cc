@@ -20,11 +20,11 @@ Facility::Facility(Context* ctx) : Trader(this), Agent(ctx) {
 Facility::~Facility() {}
 
 
-void Facility::InitFrom(Facility* m) {
+void Facility::InitFrom(std::shared_ptr<Facility> m) {
   Agent::InitFrom(m);
 }
 
-void Facility::Build(Agent* parent) {
+void Facility::Build(std::shared_ptr<Agent> parent) {
   Agent::Build(parent);
 }
 

@@ -20,7 +20,7 @@ Institution::Institution(Context* ctx) : Agent(ctx) {
 Institution::~Institution() {
 }
 
-void Institution::InitFrom(Institution* m) {
+void Institution::InitFrom(std::shared_ptr<Institution> m) {
   Agent::InitFrom(m);
 }
 
@@ -32,7 +32,7 @@ std::string Institution::str() {
   }
 }
 
-void Institution::Build(Agent* parent) {
+void Institution::Build(std::shared_ptr<Agent> parent) {
   Agent::Build(parent);
 }
 
@@ -46,11 +46,11 @@ void Institution::Decommission() {
 }
 
 void Institution::Tock() {
-  std::set<Agent*>::iterator it;
+  std::set<std::shared_ptr<Agent>>::iterator it;
   for (it = children().begin(); it != children().end(); ++it) {
-    Agent* a = *it;
+    std::shared_ptr<Agent> a = *it;
     if (a->lifetime() != -1 && context()->time() >= a->exit_time()) {
-      Facility* fac = dynamic_cast<Facility*>(a);
+      std::shared_ptr<Facility> fac = std::dynamic_pointer_cast<Facility>(a);
       if (fac == NULL || fac->CheckDecommissionCondition()) {
         CLOG(LEV_INFO3) << a->prototype()
                         << " has reached the end of its lifetime";

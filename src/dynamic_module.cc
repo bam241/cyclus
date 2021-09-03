@@ -70,9 +70,9 @@ std::string AgentSpec::str() {
 std::map<std::string, DynamicModule*> DynamicModule::modules_;
 std::map<std::string, AgentCtor*> DynamicModule::man_ctors_;
 
-Agent* DynamicModule::Make(Context* ctx, AgentSpec spec) {
+std::shared_ptr<Agent> DynamicModule::Make(Context* ctx, AgentSpec spec) {
   if (man_ctors_.count(spec.str()) > 0) {  // for testing
-    Agent* a = man_ctors_[spec.str()](ctx);
+    std::shared_ptr<Agent> a = man_ctors_[spec.str()](ctx);
     a->spec(spec.str());
     return a;
   } else if (modules_.count(spec.str()) == 0) {
@@ -81,7 +81,7 @@ Agent* DynamicModule::Make(Context* ctx, AgentSpec spec) {
   }
 
   DynamicModule* dyn = modules_[spec.str()];
-  Agent* a;
+  std::shared_ptr<Agent> a;
   if (boost::starts_with(dyn->path(), "<py>")) {
     /// go down a separate execution pathway if we are asked to load a
     /// Python module.
@@ -136,7 +136,7 @@ DynamicModule::DynamicModule(AgentSpec spec)
   SetConstructor();
 }
 
-Agent* DynamicModule::ConstructInstance(Context* ctx) {
+std::shared_ptr<Agent> DynamicModule::ConstructInstance(Context* ctx) {
   return ctor_(ctx);
 }
 

@@ -9,7 +9,7 @@ namespace cyclus {
 
 // The code for this function was copied with minor adjustements from
 // XMLFileLoader::LoadInitialAgents
-void InitAgent(Agent* a, std::stringstream& config, Recorder* rec,
+void InitAgent(std::shared_ptr<Agent> a, std::stringstream& config, Recorder* rec,
                SqliteBack* back) {
   XMLParser parser_;
   parser_.Init(config);
@@ -97,7 +97,7 @@ std::string MockAgent::Finalize() {
   }
   xml << "</SrcSnkAgent></config></facility>";
 
-  Agent* a = DynamicModule::Make(ctx_, spec);
+  std::shared_ptr<Agent> a = DynamicModule::Make(ctx_, spec);
   InitAgent(a, xml, rec_, back_);
 
   ctx_->AddPrototype(proto_, a);
@@ -129,7 +129,7 @@ MockSim::MockSim(AgentSpec spec, std::string config, int duration)
   rec_.RegisterBackend(back_);
   ctx_.InitSim(SimInfo(duration));
 
-  Agent* a = DynamicModule::Make(&ctx_, spec);
+  std::shared_ptr<Agent> a = DynamicModule::Make(&ctx_, spec);
 
   std::stringstream xml;
   xml << "<facility><name>agent_being_tested</name><config><foo>" << config
@@ -137,7 +137,7 @@ MockSim::MockSim(AgentSpec spec, std::string config, int duration)
   InitAgent(a, xml, &rec_, back_);
 
   ctx_.AddPrototype(a->prototype(), a);
-  agent = ctx_.CreateAgent<Agent>(a->prototype());
+  agent = (ctx_.CreateAgent<Agent>(a->prototype())).get();
 }
 
 MockSim::MockSim(AgentSpec spec, std::string config, int duration, int lifetime)
@@ -148,7 +148,7 @@ MockSim::MockSim(AgentSpec spec, std::string config, int duration, int lifetime)
   rec_.RegisterBackend(back_);
   ctx_.InitSim(SimInfo(duration));
 
-  Agent* a = DynamicModule::Make(&ctx_, spec);
+  std::shared_ptr<Agent> a = DynamicModule::Make(&ctx_, spec);
 
   std::stringstream xml;
   xml << "<facility>"
@@ -159,11 +159,11 @@ MockSim::MockSim(AgentSpec spec, std::string config, int duration, int lifetime)
   InitAgent(a, xml, &rec_, back_);
 
   ctx_.AddPrototype(a->prototype(), a);
-  agent = ctx_.CreateAgent<Agent>(a->prototype());
+  agent = ctx_.CreateAgent<Agent>(a->prototype()).get();
 }
 
 void MockSim::DummyProto(std::string name) {
-  Agent* a = DynamicModule::Make(&ctx_, AgentSpec(":agents:Source"));
+  std::shared_ptr<Agent> a = DynamicModule::Make(&ctx_, AgentSpec(":agents:Source"));
 
   std::stringstream xml;
   xml << "<facility><name>" << name << "</name>"
@@ -177,7 +177,7 @@ void MockSim::DummyProto(std::string name) {
 };
 
 void MockSim::DummyProto(std::string name, std::string commod, double capacity) {
-  Agent* a = DynamicModule::Make(&ctx_, AgentSpec(":agents:Source"));
+  std::shared_ptr<Agent> a = DynamicModule::Make(&ctx_, AgentSpec(":agents:Source"));
 
   std::stringstream xml;
   xml << "<facility><name>" << name << "</name>"

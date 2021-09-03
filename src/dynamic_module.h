@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 #include "error.h"
 
@@ -14,7 +15,7 @@ namespace cyclus {
 class Agent;
 class Context;
 
-typedef Agent* AgentCtor(Context*);
+typedef std::shared_ptr<Agent> AgentCtor(Context*);
 
 class InfileTree;
 
@@ -61,7 +62,7 @@ class DynamicModule {
   DynamicModule() {};
 
   /// Returns a newly constructed agent for the given module spec.
-  static Agent* Make(Context* ctx, AgentSpec spec);
+  static std::shared_ptr<Agent> Make(Context* ctx, AgentSpec spec);
 
   /// Tests that an agent spec really exists.
   static bool Exists(AgentSpec spec);
@@ -85,7 +86,7 @@ class DynamicModule {
 
   /// construct an instance of this module
   /// @return a fresh instance
-  Agent* ConstructInstance(Context* ctx);
+  std::shared_ptr<Agent> ConstructInstance(Context* ctx);
 
   /// closes the loaded module dynamic lib
   void CloseLibrary();

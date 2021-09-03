@@ -76,12 +76,13 @@ void EventLoop(void) { CyclusEventLoopHook(); };
 
 std::string PyFindModule(std::string lib) { return CyclusPyFindModule(lib); };
 
-Agent* MakePyAgent(std::string lib, std::string agent, void* ctx) {
-  return CyclusMakePyAgent(lib, agent, ctx);
+std::shared_ptr<Agent> MakePyAgent(std::string lib, std::string agent, void* ctx) {
+  cyclus::Agent* agent_ptr = CyclusMakePyAgent(lib, agent, ctx);
+  return std::shared_ptr<cyclus::Agent>(agent_ptr);
 };
 
-void InitFromPyAgent(Agent* src, Agent* dst, void* ctx) {
-  CyclusInitFromPyAgent(src, dst, ctx);
+void InitFromPyAgent(std::shared_ptr<Agent> src, std::shared_ptr<Agent> dst, void* ctx) {
+  CyclusInitFromPyAgent(src.get(), dst.get(), ctx);
 };
 
 void ClearPyAgentRefs(void) { CyclusClearPyAgentRefs(); };
@@ -93,8 +94,8 @@ std::string PyToJson(std::string infile) { return CyclusPyToJson(infile); };
 
 std::string JsonToPy(std::string infile) { return CyclusJsonToPy(infile); };
 
-void PyCallListeners(std::string tstype, Agent* agent, void* cpp_ctx, int time, boost::spirit::hold_any value){
-    CyclusPyCallListeners(tstype, agent, cpp_ctx, time, value);
+void PyCallListeners(std::string tstype, std::shared_ptr<Agent> agent, void* cpp_ctx, int time, boost::spirit::hold_any value){
+    CyclusPyCallListeners(tstype, agent.get(), cpp_ctx, time, value);
 };
 
 }  // namespace toolkit
@@ -120,9 +121,9 @@ void EventLoop(void) {};
 
 std::string PyFindModule(std::string lib) { return std::string(""); };
 
-Agent* MakePyAgent(std::string lib, std::string agent, void* ctx) { return NULL; };
+std::shared_ptr<Agent> MakePyAgent(std::string lib, std::string agent, void* ctx) { return NULL; };
 
-void InitFromPyAgent(Agent* src, Agent* dst, void* ctx) {};
+void InitFromPyAgent(std::shared_ptr<Agent> src, std::shared_ptr<Agent> dst, void* ctx) {};
 
 void ClearPyAgentRefs(void) {};
 
@@ -141,7 +142,7 @@ std::string JsonToPy(std::string infile) {
   return "";
 };
 
-void PyCallListeners(std::string tsname, Agent* agent, void* cpp_ctx, int time, boost::spirit::hold_any value) {};
+void PyCallListeners(std::string tsname, std::shared_ptr<Agent> agent, void* cpp_ctx, int time, boost::spirit::hold_any value) {};
 
 } // namespace toolkit
 } // namespace cyclus

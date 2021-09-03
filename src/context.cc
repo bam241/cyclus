@@ -83,8 +83,8 @@ Context::~Context() {
 
   // initiate deletion of agents that don't have parents.
   // dealloc will propagate through hierarchy as agents delete their children
-  std::vector<Agent*> to_del;
-  std::set<Agent*>::iterator it;
+  std::vector<std::shared_ptr<Agent>> to_del;
+  std::set<std::shared_ptr<Agent>>::iterator it;
   for (it = agent_list_.begin(); it != agent_list_.end(); ++it) {
     if ((*it)->parent() == NULL) {
       to_del.push_back(*it);
@@ -95,16 +95,14 @@ Context::~Context() {
   }
 }
 
-void Context::DelAgent(Agent* m) {
+void Context::DelAgent(std::shared_ptr<Agent> m) {
   int n = agent_list_.erase(m);
   if (n == 1) {
     PyDelAgent(m->id());
-    delete m;
-    m = NULL;
   }
 }
 
-void Context::SchedBuild(Agent* parent, std::string proto_name, int t) {
+void Context::SchedBuild(std::shared_ptr<Agent> parent, std::string proto_name, int t) {
   if (t == -1) {
     t = time() + 1;
   }
@@ -118,7 +116,7 @@ void Context::SchedBuild(Agent* parent, std::string proto_name, int t) {
       ->Record();
 }
 
-void Context::SchedDecom(Agent* m, int t) {
+void Context::SchedDecom(std::shared_ptr<Agent> m, int t) {
   if (t == -1) {
     t = time();
   }
@@ -134,11 +132,11 @@ boost::uuids::uuid Context::sim_id() {
   return rec_->sim_id();
 }
 
-void Context::AddPrototype(std::string name, Agent* p) {
+void Context::AddPrototype(std::string name, std::shared_ptr<Agent> p) {
   AddPrototype(name, p, false);
 }
 
-void Context::AddPrototype(std::string name, Agent* p, bool overwrite) {
+void Context::AddPrototype(std::string name, std::shared_ptr<Agent> p, bool overwrite) {
   if (!overwrite && protos_.find(name) != protos_.end()) {
     throw KeyError("Prototype name " + name + " has already been added" +
                    " and cannot be overwritten.");

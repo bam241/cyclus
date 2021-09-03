@@ -223,9 +223,13 @@ class TypeSystem(object):
     def py_to_any(self, a, val, t):
         """Returns an expression for assigning a Python object (val) to an any
         object (a)."""
+        print("to1")
         cyt = self.possibly_shared_cython_type(t)
+        print("to2")
         cpp = self.var_to_cpp(val, t)
+        print("to3")
         rtn = '{a}.assign[{cyt}]({cpp})'.format(a=a, cyt=cyt, cpp=cpp)
+        print("to4")
         return rtn
 
     def nptype(self, n):
@@ -351,7 +355,7 @@ CYTHON_TYPES = {
     'BOOL': 'cpp_bool',
     'INT': 'int',
     'FLOAT': 'float',
-    'DOUBLE': 'double',
+    'DOUBLE': 'float',
     'STRING': 'std_string',
     'VL_STRING': 'std_string',
     'BLOB': 'cpp_cyclus.Blob',
@@ -363,7 +367,7 @@ CYTHON_TYPES = {
     'bool': 'cpp_bool',
     'int': 'int',
     'float': 'float',
-    'double': 'double',
+    'double': 'float',
     'std::string': 'std_string',
     'std::string': 'std_string',
     'cyclus::Blob': 'cpp_cyclus.Blob',
@@ -1739,10 +1743,16 @@ cdef cpp_cyclus.hold_any py_to_any(object value, object t):
     t : dbtype or norm type (str or tupe of str)
         The type to use in the conversion.
     """
+    cdef cpp_cyclus.hold_any v
+    print("type1")
     if isinstance(t, int):
-        return py_to_any_by_dbtype(value, t)
+        print("type2")
+        v = py_to_any_by_dbtype(value, t)
     else:
-        return py_to_any_by_norm(value, t)
+        print("type3")    
+        v = py_to_any_by_norm(value, t)
+    print("type4")
+    return v
 
 
 cdef cpp_cyclus.hold_any py_to_any_by_dbtype(object value, cpp_cyclus.DbTypes dbtype):
@@ -1750,6 +1760,7 @@ cdef cpp_cyclus.hold_any py_to_any_by_dbtype(object value, cpp_cyclus.DbTypes db
     cdef cpp_cyclus.hold_any rtn
     {%- for i, t in enumerate(dbtypes) %}
     {% if i > 0 %}el{% endif %}if dbtype == {{ ts.cython_cpp_name(t) }}:
+        print("py_to_any_by_dbtype", dbtype)
         rtn = {{ ts.py_to_any('rtn', 'value', t) }}
     {%- endfor %}
     else:

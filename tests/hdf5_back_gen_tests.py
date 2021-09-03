@@ -7,7 +7,7 @@ import uuid
 import nose
 from nose.plugins.skip import SkipTest
 import pandas as pd
-from pandas.util.testing import assert_frame_equal
+from pandas.testing import assert_frame_equal
 
 from cyclus.lib import Hdf5Back, Recorder
 import cyclus.typesystem as ts
@@ -257,22 +257,28 @@ def generate_and_test():
         rec.register_backend(back)
         data_meta = generate_meta(i)
         shape = get_shape(data_meta)
-        print("shape: ", shape)
+        print("shape: ", shape, flush=True)
         data = []
         for j in range(ROW_NUM):
             data.append(populate(data_meta))
         exp = pd.DataFrame({'col0': data}, columns=['col0'])
         print("expected: \n", exp)
+        print("before for")
         for j in data:
             d = rec.new_datum("test0")
             d.add_val("col0", j, shape=shape, type=ts.IDS[CANON_TO_DB[i]])
             d.record()
             rec.flush()
+        print("before query")
         obs = back.query("test0")
-        print("observed: \n", obs)
+        print("observed: \n", obs, flush=True)
         yield assert_frame_equal, exp, obs
+        print("\nvalue\n",exp, obs)
+        print("before close")
         rec.close()
+        print("after close")
         os.remove(PATH)
+        print("done with generate_and_test")
 
 if __name__ == "__main__":
     nose.runmodule()

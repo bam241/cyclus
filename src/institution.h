@@ -3,6 +3,7 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <set>
 
 #include "agent.h"
@@ -54,7 +55,7 @@ class Institution : public Agent, public TimeListener {
   virtual std::string str();
 
   /// perform all tasks required when an inst enters the simulation
-  virtual void Build(Agent* parent);
+  virtual void Build(std::shared_ptr<Agent> parent);
 
   virtual void EnterNotify();
 
@@ -65,7 +66,7 @@ class Institution : public Agent, public TimeListener {
   virtual void Tock();
 
  protected:
-  void InitFrom(Institution* m);
+  void InitFrom(std::shared_ptr<Institution> m);
 };
 
 }  // namespace cyclus

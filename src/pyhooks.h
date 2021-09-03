@@ -2,6 +2,7 @@
 #define CYCLUS_SRC_PYHOOKS_H_
 
 #include <string>
+#include <memory>
 
 #include "any.hpp"
 
@@ -41,10 +42,10 @@ void EventLoop(void);
 std::string PyFindModule(std::string);
 
 /// Finds a Python module and returns an agent pointer from it.
-Agent* MakePyAgent(std::string, std::string, void*);
+std::shared_ptr<Agent> MakePyAgent(std::string, std::string, void*);
 
 /// Initializes a Python agent fron another agent
-void InitFromPyAgent(Agent*, Agent*, void*);
+void InitFromPyAgent(std::shared_ptr<Agent>, std::shared_ptr<Agent>, void*);
 
 /// Removes all Python agents from the internal cache. There is usually
 /// no need for a user to call this.
@@ -62,7 +63,7 @@ std::string PyToJson(std::string);
 std::string JsonToPy(std::string);
 
 /// Calls the Python listeners
-void PyCallListeners(std::string tsname, Agent* agent, void* cpp_ctx, int time, boost::spirit::hold_any value);
+void PyCallListeners(std::string tsname, std::shared_ptr<Agent> agent, void* cpp_ctx, int time, boost::spirit::hold_any value);
 
 }  // ends namespace toolkit
 }  // ends namespace cyclus

@@ -2,6 +2,7 @@
 #define CYCLUS_SRC_AGENT_H_
 
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -48,7 +49,7 @@ typedef std::map<std::string, std::vector<Resource::Ptr> > Inventories;
 /// functions all do inter-related things.  Notably, the #InfileToDb, #InitFrom,
 /// and #Snapshot functions must all write/read to/from the same database tables
 /// (and table schemas).
-class Agent : public StateWrangler, virtual public Ider {
+class Agent : public std::enable_shared_from_this<Agent>, public StateWrangler, virtual public Ider {
   friend class SimInit;
   friend class ::SimInitTest;
 
@@ -66,7 +67,7 @@ class Agent : public StateWrangler, virtual public Ider {
 
   /// Returns a newly created/allocated prototype that is an exact copy of this.
   /// All initialization and state cloning operations should be done in the
-  /// agent's InitFrom(Agent*) function. The new agent instance should NOT be
+  /// agent's InitFrom(std::shared_ptr<Agent>) function. The new agent instance should NOT be
   /// created using a default copy-constructor. New agent instances should
   /// generally be created using a constructor that takes a single Context
   /// argument (the same context of the agent being cloned).  Example:
@@ -75,7 +76,7 @@ class Agent : public StateWrangler, virtual public Ider {
   /// class MyAgentClass : virtual public Agent {
   ///   ...
   ///
-  ///   virtual Agent* Clone() {
+  ///   virtual std::shared_ptr<Agent> Clone() {
   ///     MyAgentClass* m = new MyAgentClass(context());
   ///     m->InitFrom(this);
   ///     return m;
@@ -276,22 +277,22 @@ class Agent : public StateWrangler, virtual public Ider {
   /// returns a vector of strings representing the parent-child tree
   /// at the node for Agent m
   /// @param m the agent node to base as the root of this print tree
-  std::vector<std::string> GetTreePrintOuts(Agent* m);
+  std::vector<std::string> GetTreePrintOuts(std::shared_ptr<Agent> m);
 
   /// returns true if this agent is in the parent-child family tree of an other
   /// agent
   /// @param other the other agent
-  bool InFamilyTree(Agent* other);
+  bool InFamilyTree(std::shared_ptr<Agent> other);
 
   /// returns true if this agent is an ancestor of an other agent (i.e., resides
   /// above an other agent in the family tree)
   /// @param other the other agent
-  bool AncestorOf(Agent* other);
+  bool AncestorOf(std::shared_ptr<Agent> other);
 
   /// returns true if this agent is an decendent of an other agent (i.e., resides
   /// below an other agent in the family tree)
   /// @param other the other agent
-  bool DecendentOf(Agent* other);
+  bool DecendentOf(std::shared_ptr<Agent> other);
 
   /// Called when the agent enters the smiulation as an active participant and
   /// is only ever called once.  Agents should NOT register for services (such
@@ -300,7 +301,7 @@ class Agent : public StateWrangler, virtual public Ider {
   /// BEGINING of their Build function.
   ///
   /// @param parent this agent's parent. NULL if this agent has no parent.
-  virtual void Build(Agent* parent);
+  virtual void Build(std::shared_ptr<Agent> parent);
 
   /// Called to give the agent an opportunity to register for services (e.g.
   /// ticks/tocks and resource exchange).  Note that this may be called more
@@ -312,10 +313,10 @@ class Agent : public StateWrangler, virtual public Ider {
   /// Called when a new child of this agent has just been built. It is possible
   /// for this function to be called before the simulation has started when
   /// initially existing agents are being setup.
-  virtual void BuildNotify(Agent* m) {}
+  virtual void BuildNotify(std::shared_ptr<Agent> m) {}
 
   /// Called when a child of this agent is about to be decommissioned.
-  virtual void DecomNotify(Agent* m) {}
+  virtual void DecomNotify(std::shared_ptr<Agent> m) {}
 
   /// Decommissions the agent, removing it from the simulation. Results in
   /// destruction of the agent object. If agents write their own Decommission
@@ -372,7 +373,7 @@ class Agent : public StateWrangler, virtual public Ider {
   virtual std::string str();
 
   /// Returns parent of this agent.  Returns NULL if the agent has no parent.
-  inline Agent* parent() const { return parent_; }
+  inline std::shared_ptr<Agent> parent() const { return parent_; }
 
   /// Returns the id for this agent's parent. Returns -1 if this agent has no
   /// parent.
@@ -411,7 +412,7 @@ class Agent : public StateWrangler, virtual public Ider {
   }
 
   /// Returns a list of children this agent has
-  inline const std::set<Agent*>& children() const { return children_; }
+  inline const std::set<std::shared_ptr<Agent>>& children() const { return children_; }
 
  protected:
   /// Initializes a agent by copying parameters from the passed agent m. This
@@ -439,7 +440,7 @@ class Agent : public StateWrangler, virtual public Ider {
   ///   // ...
   /// };
   /// @endcode
-  void InitFrom(Agent* m);
+  void InitFrom(std::shared_ptr<Agent> m);
 
   /// adds agent-specific information prefix to an error message
   virtual std::string InformErrorMsg(std::string msg);
@@ -460,16 +461,16 @@ class Agent : public StateWrangler, virtual public Ider {
   void AddToTable();
 
   /// connects an agent to its parent.
-  void Connect(Agent* parent);
+  void Connect(std::shared_ptr<Agent> parent);
 
   /// Stores the next available facility ID
   static int next_id_;
 
   /// children of this agent
-  std::set<Agent*> children_;
+  std::set<std::shared_ptr<Agent>> children_;
 
   /// parent of this agent
-  Agent* parent_;
+  std::shared_ptr<Agent> parent_;
 
   /// parent's ID of this agent
   /// Note: we keep the parent id in the agent so we can reference it

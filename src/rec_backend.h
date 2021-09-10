@@ -19,19 +19,15 @@ class RecBackend {
   class Deleter {
    public:
     /// Add another backend b to be deleted when the Deleter is destructed.
-    void Add(RecBackend* b) {
+    void Add(std::shared_ptr<RecBackend> b) {
       backs_.push_back(b);
     }
 
     /// Deletes all tracked backends.
-    ~Deleter() {
-      for (int i = 0; i < backs_.size(); ++i) {
-        delete backs_[i];
-      }
-    }
+    ~Deleter() { }
 
    private:
-    std::vector<RecBackend*> backs_;
+    std::vector<std::shared_ptr<RecBackend>> backs_;
   };
 
   virtual ~RecBackend() {}

@@ -4,6 +4,7 @@ from libcpp.set cimport set as std_set
 from libcpp.vector cimport vector as std_vector
 from libcpp.utility cimport pair as std_pair
 from libcpp.string cimport string as std_string
+from libcpp.memory cimport shared_ptr as std_shared
 from libcpp cimport bool as cpp_bool
 
 from cpython cimport PyObject
@@ -21,7 +22,7 @@ cdef cppclass CyclusAgentShim "CyclusAgentShim" (cpp_cyclus.Agent):  # C++CONSTR
     cpp_cyclus.Agent* Clone() except +
     void InfileToDb(cpp_cyclus.InfileTree*, cpp_cyclus.DbInit) except +
     void InitFromAgent "InitFrom" (CyclusAgentShim*) except +
-    void InitFrom(cpp_cyclus.QueryableBackend*) except +
+    void InitFrom(std_shared[cpp_cyclus.QueryableBackend]) except +
     void Snapshot(cpp_cyclus.DbInit) except +
     void InitInv(cpp_cyclus.Inventories&) except +
     cpp_cyclus.Inventories SnapshotInv() except +
@@ -47,7 +48,7 @@ cdef cppclass CyclusRegionShim "CyclusRegionShim" (cpp_cyclus.Region):  # C++CON
     cpp_cyclus.Agent* Clone() except +
     void InfileToDb(cpp_cyclus.InfileTree*, cpp_cyclus.DbInit) except +
     void InitFromAgent "InitFrom" (CyclusRegionShim*) except +
-    void InitFrom(cpp_cyclus.QueryableBackend*) except +
+    void InitFrom(std_shared[cpp_cyclus.QueryableBackend]) except +
     void Snapshot(cpp_cyclus.DbInit) except +
     void InitInv(cpp_cyclus.Inventories&) except +
     cpp_cyclus.Inventories SnapshotInv() except +
@@ -76,7 +77,7 @@ cdef cppclass CyclusInstitutionShim "CyclusInstitutionShim" (cpp_cyclus.Institut
     cpp_cyclus.Agent* Clone() except +
     void InfileToDb(cpp_cyclus.InfileTree*, cpp_cyclus.DbInit) except +
     void InitFromAgent "InitFrom" (CyclusInstitutionShim*) except +
-    void InitFrom(cpp_cyclus.QueryableBackend*) except +
+    void InitFrom(std_shared[cpp_cyclus.QueryableBackend]) except +
     void Snapshot(cpp_cyclus.DbInit) except +
     void InitInv(cpp_cyclus.Inventories&) except +
     cpp_cyclus.Inventories SnapshotInv() except +
@@ -105,7 +106,7 @@ cdef cppclass CyclusFacilityShim "CyclusFacilityShim" (cpp_cyclus.Facility):  # 
     cpp_cyclus.Agent* Clone() except +
     void InfileToDb(cpp_cyclus.InfileTree*, cpp_cyclus.DbInit) except +
     void InitFromAgent "InitFrom" (CyclusFacilityShim*) except +
-    void InitFrom(cpp_cyclus.QueryableBackend*) except +
+    void InitFrom(std_shared[cpp_cyclus.QueryableBackend]) except +
     void Snapshot(cpp_cyclus.DbInit) except +
     void InitInv(cpp_cyclus.Inventories&) except +
     cpp_cyclus.Inventories SnapshotInv() except +

@@ -2,8 +2,10 @@
 #define CYCLUS_SRC_RECORDER_H_
 
 #include <list>
+#include <memory>
 #include <string>
 #include <vector>
+
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
@@ -105,7 +107,7 @@ class Recorder {
   /// are no more Datum objects.
   ///
   /// @param b backend to receive Datum objects
-  void RegisterBackend(RecBackend* b);
+  void RegisterBackend(std::shared_ptr<RecBackend> b);
 
   /// Flushes all buffered Datum objects and flushes all registered backends.
   void Flush();
@@ -120,7 +122,7 @@ class Recorder {
 
   DatumList data_;
   int index_;
-  std::list<RecBackend*> backs_;
+  std::list<std::shared_ptr<RecBackend>> backs_;
   unsigned int dump_count_;
   boost::uuids::uuid uuid_;
   bool inject_sim_id_;

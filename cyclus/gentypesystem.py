@@ -351,7 +351,7 @@ CYTHON_TYPES = {
     'BOOL': 'cpp_bool',
     'INT': 'int',
     'FLOAT': 'float',
-    'DOUBLE': 'float',
+    'DOUBLE': 'double',
     'STRING': 'std_string',
     'VL_STRING': 'std_string',
     'BLOB': 'cpp_cyclus.Blob',
@@ -363,7 +363,7 @@ CYTHON_TYPES = {
     'bool': 'cpp_bool',
     'int': 'int',
     'float': 'float',
-    'double': 'float',
+    'double': 'double',
     'std::string': 'std_string',
     'std::string': 'std_string',
     'cyclus::Blob': 'cpp_cyclus.Blob',
@@ -887,6 +887,7 @@ from libcpp.typeinfo cimport type_info
 from cython.operator cimport dereference as deref
 from cython.operator cimport preincrement as inc
 from cython.operator cimport typeid
+from cython import double
 from libc.stdlib cimport malloc, free
 from libc.string cimport memcpy
 from libcpp cimport bool as cpp_bool
@@ -1750,6 +1751,7 @@ cdef cpp_cyclus.hold_any py_to_any_by_dbtype(object value, cpp_cyclus.DbTypes db
     cdef cpp_cyclus.hold_any rtn
     {%- for i, t in enumerate(dbtypes) %}
     {% if i > 0 %}el{% endif %}if dbtype == {{ ts.cython_cpp_name(t) }}:
+        
         rtn = {{ ts.py_to_any('rtn', 'value', t) }}
     {%- endfor %}
     else:
@@ -1905,7 +1907,7 @@ cdef class StateVar:
     initfromcopy Code snippet to use in the ``InitFrom(Agent* m)`` function for
                  this state variable instead of using code generation.
                  This is a string.
-    initfromdb   Code snippet to use in the ``InitFrom(QueryableBackend* b)``
+    initfromdb   Code snippet to use in the ``InitFrom(std::shared_ptr<QueryableBackend> b)``
                  function for this state variable instead of using code generation.
                  This is a string.
     infiletodb   Code snippets to use in the ``InfileToDb()`` function

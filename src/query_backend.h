@@ -166,10 +166,16 @@ enum DbTypes {
   MAP_VL_STRING_UUID,  // ["std::map<std::string, boost::uuids::uuid>", 2, ["HDF5"], ["MAP", "VL_STRING", "UUID"], false]
   VL_MAP_VL_STRING_UUID,  // ["std::map<std::string, boost::uuids::uuid>", 2, ["HDF5"], ["VL_MAP", "VL_STRING", "UUID"], true]
   // maps with pair<int,  string> keys and double values
-  MAP_PAIR_INT_STRING_DOUBLE,  // ["std::map<std::pair<int, std::string>, double>", 3, ["HDF5"], ["MAP", ["PAIR", "INT", "STRING"], "DOUBLE"], false]
-  VL_MAP_PAIR_INT_STRING_DOUBLE,  // ["std::map<std::pair<int, std::string>, double>", 3, ["HDF5"], ["VL_MAP", ["PAIR", "INT", "STRING"], "DOUBLE"], true]
-  MAP_PAIR_INT_VL_STRING_DOUBLE,  // ["std::map<std::pair<int, std::string>, double>", 3, ["HDF5"], ["MAP", ["PAIR", "INT", "VL_STRING"], "DOUBLE"], false]
-  VL_MAP_PAIR_INT_VL_STRING_DOUBLE,  // ["std::map<std::pair<int, std::string>, double>", 3, ["HDF5"], ["VL_MAP", ["PAIR", "INT", "VL_STRING"], "DOUBLE"], true]
+  MAP_PAIR_INT_STRING_DOUBLE,  // ["std::map<std::pair<int, std::string>, double>", 2, ["HDF5"], ["MAP", ["PAIR", "INT", "STRING"], "DOUBLE"], false]
+  VL_MAP_PAIR_INT_STRING_DOUBLE,  // ["std::map<std::pair<int, std::string>, double>", 2, ["HDF5"], ["VL_MAP", ["PAIR", "INT", "STRING"], "DOUBLE"], true]
+  MAP_PAIR_INT_VL_STRING_DOUBLE,  // ["std::map<std::pair<int, std::string>, double>", 2, ["HDF5"], ["MAP", ["PAIR", "INT", "VL_STRING"], "DOUBLE"], false]
+  VL_MAP_PAIR_INT_VL_STRING_DOUBLE,  // ["std::map<std::pair<int, std::string>, double>", 2, ["HDF5"], ["VL_MAP", ["PAIR", "INT", "VL_STRING"], "DOUBLE"], true]
+// maps with pair<int,  string> keys and float values
+  MAP_PAIR_INT_STRING_FLOAT,  // ["std::map<std::pair<int, std::string>, float>", 2, ["HDF5"], ["MAP", ["PAIR", "INT", "STRING"], "FLOAT"], false]
+  VL_MAP_PAIR_INT_STRING_FLOAT,  // ["std::map<std::pair<int, std::string>, float>", 2, ["HDF5"], ["VL_MAP", ["PAIR", "INT", "STRING"], "FLOAT"], true]
+  MAP_PAIR_INT_VL_STRING_FLOAT,  // ["std::map<std::pair<int, std::string>, float>", 2, ["HDF5"], ["MAP", ["PAIR", "INT", "VL_STRING"], "FLOAT"], false]
+  VL_MAP_PAIR_INT_VL_STRING_FLOAT,  // ["std::map<std::pair<int, std::string>, float>", 2, ["HDF5"], ["VL_MAP", ["PAIR", "INT", "VL_STRING"], "FLOAT"], true]
+
 
   // map<string,  vector<double> >
   MAP_STRING_VECTOR_DOUBLE,  // ["std::map<std::string, std::vector<double>>", 3, ["HDF5", "SQLite"], ["MAP", "STRING", ["VECTOR", "DOUBLE"]], false]
@@ -180,6 +186,17 @@ enum DbTypes {
   VL_MAP_STRING_VL_VECTOR_DOUBLE,  // ["std::map<std::string, std::vector<double>>", 3, ["HDF5", "SQLite"], ["VL_MAP", "STRING", ["VL_VECTOR", "DOUBLE"]], true]
   VL_MAP_VL_STRING_VECTOR_DOUBLE,  // ["std::map<std::string, std::vector<double>>", 3, ["HDF5", "SQLite"], ["VL_MAP", "VL_STRING", ["VECTOR", "DOUBLE"]], true]
   VL_MAP_VL_STRING_VL_VECTOR_DOUBLE,  // ["std::map<std::string, std::vector<double>>", 3, ["HDF5", "SQLite"], ["VL_MAP", "VL_STRING", ["VL_VECTOR", "DOUBLE"]], true]
+
+// map<string,  vector<float> >
+  MAP_STRING_VECTOR_FLOAT,  // ["std::map<std::string, std::vector<float>>", 3, ["HDF5", "SQLite"], ["MAP", "STRING", ["VECTOR", "FLOAT"]], false]
+  MAP_STRING_VL_VECTOR_FLOAT,  // ["std::map<std::string, std::vector<float>>", 3, ["HDF5", "SQLite"], ["MAP", "STRING", ["VL_VECTOR", "FLOAT"]], false]
+  VL_MAP_STRING_VECTOR_FLOAT,  // ["std::map<std::string, std::vector<float>>", 3, ["HDF5", "SQLite"], ["VL_MAP", "STRING", ["VECTOR", "FLOAT"]], true]
+  MAP_VL_STRING_VECTOR_FLOAT,  // ["std::map<std::string, std::vector<float>>", 3, ["HDF5", "SQLite"], ["MAP", "VL_STRING", ["VECTOR", "FLOAT"]], false]
+  MAP_VL_STRING_VL_VECTOR_FLOAT,  // ["std::map<std::string, std::vector<float>>", 3, ["HDF5", "SQLite"], ["MAP", "VL_STRING", ["VL_VECTOR", "FLOAT"]], false]
+  VL_MAP_STRING_VL_VECTOR_FLOAT,  // ["std::map<std::string, std::vector<float>>", 3, ["HDF5", "SQLite"], ["VL_MAP", "STRING", ["VL_VECTOR", "FLOAT"]], true]
+  VL_MAP_VL_STRING_VECTOR_FLOAT,  // ["std::map<std::string, std::vector<float>>", 3, ["HDF5", "SQLite"], ["VL_MAP", "VL_STRING", ["VECTOR", "FLOAT"]], true]
+  VL_MAP_VL_STRING_VL_VECTOR_FLOAT,  // ["std::map<std::string, std::vector<float>>", 3, ["HDF5", "SQLite"], ["VL_MAP", "VL_STRING", ["VL_VECTOR", "FLOAT"]], true]
+
 
   // map<string,  map<int,  double> >
   MAP_STRING_MAP_INT_DOUBLE,  // ["std::map<std::string, std::map<int, double>>", 3, ["HDF5", "SQLite"], ["MAP", "STRING", ["MAP", "INT", "DOUBLE"]], false]
@@ -525,7 +542,7 @@ class FullBackend: public QueryableBackend, public RecBackend {
 /// query before being executed.
 class CondInjector: public QueryableBackend {
  public:
-  CondInjector(QueryableBackend* b, std::vector<Cond> to_inject)
+  CondInjector(std::shared_ptr<QueryableBackend> b, std::vector<Cond> to_inject)
       : b_(b),
         to_inject_(to_inject) {}
 
@@ -552,7 +569,7 @@ class CondInjector: public QueryableBackend {
   virtual std::set<std::string> Tables() { return b_->Tables(); }
 
  private:
-  QueryableBackend* b_;
+  std::shared_ptr<QueryableBackend> b_;
   std::vector<Cond> to_inject_;
 };
 
@@ -562,7 +579,7 @@ class CondInjector: public QueryableBackend {
 /// [prefix] + "MyAgentTable".
 class PrefixInjector: public QueryableBackend {
  public:
-  PrefixInjector(QueryableBackend* b, std::string prefix)
+  PrefixInjector(std::shared_ptr<QueryableBackend> b, std::string prefix)
       : b_(b),
         prefix_(prefix) {}
 
@@ -581,7 +598,7 @@ class PrefixInjector: public QueryableBackend {
   virtual std::set<std::string> Tables() { return b_->Tables(); }
 
  private:
-  QueryableBackend* b_;
+  std::shared_ptr<QueryableBackend> b_;
   std::string prefix_;
 };
 
@@ -963,6 +980,15 @@ class Sha1 {
     }
   }
 
+  inline void Update(const std::map<std::pair<int, std::string>, float>& x) {
+    std::map<std::pair<int, std::string>, float>::const_iterator it = x.begin();
+    for (; it != x.end(); ++it) {
+      hash_.process_bytes(&(it->first.first), sizeof(int));
+      hash_.process_bytes(it->first.second.c_str(), it->first.second.size());
+      hash_.process_bytes(&(it->second), sizeof(float));
+    }
+  }
+
   inline void Update(const std::map<std::pair<std::string, std::string>, int>& x) {
     std::map<std::pair<std::string, std::string>, int>::const_iterator it = x.begin();
     for (; it != x.end(); ++it) {
@@ -980,6 +1006,14 @@ class Sha1 {
     }
   }
 
+  inline void Update(const std::map<std::string, std::vector<float>>& x) {
+    std::map<std::string, std::vector<float>>::const_iterator it = x.begin();
+    for (; it != x.end(); ++it) {
+      hash_.process_bytes(it->first.c_str(), it->first.size());
+      Update(it->second);
+    }
+  }
+  
   inline void Update(const std::map<std::string, std::map<int, double>>& x) {
     std::map<std::string, std::map<int, double>>::const_iterator it = x.begin();
     for (; it != x.end(); ++it) {

@@ -14,7 +14,7 @@ void testseries(std::string tbl) {
   Recorder rec;
   Timer ti;
   Context ctx(&ti, &rec);
-  SqliteBack* back = new SqliteBack(":memory:");
+  std::shared_ptr<SqliteBack> back = std::make_shared<SqliteBack>(":memory:");
   rec.RegisterBackend(back);
 
   Agent* a = new TestAgent(&ctx);
@@ -27,7 +27,6 @@ void testseries(std::string tbl) {
   EXPECT_EQ(a->id(), stmt->GetInt(0));
   EXPECT_EQ(42.0, stmt->GetDouble(1));
 
-  delete back;
   cyclus::PyStop();
 }
 

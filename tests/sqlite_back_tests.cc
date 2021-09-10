@@ -13,15 +13,14 @@ static std::string const path = ":memory:";
 class SqliteBackTests : public ::testing::Test {
  public:
   virtual void SetUp() {
-    b = new cyclus::SqliteBack(path);
+    b = std::make_shared<cyclus::SqliteBack>(path);
     r.RegisterBackend(b);
   }
 
   virtual void TearDown() {
     r.Close();
-    delete b;
   }
-  cyclus::SqliteBack* b;
+  std::shared_ptr<cyclus::SqliteBack> b;
   cyclus::Recorder r;
 };
 

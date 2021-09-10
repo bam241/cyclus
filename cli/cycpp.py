@@ -48,7 +48,8 @@ import os
 import re
 import sys
 import uuid
-from collections import Sequence, Mapping, MutableMapping, OrderedDict
+from collections.abc import Sequence, Mapping, MutableMapping
+from collections import OrderedDict
 from contextlib import contextmanager
 from itertools import takewhile
 from subprocess import Popen, PIPE
@@ -1090,7 +1091,7 @@ class InitFromDbFilter(CodeGeneratorFilter):
     methodrtn = "void"
 
     def methodargs(self):
-        return "{0}::QueryableBackend* b".format(CYCNS)
+        return "std::shared_ptr<{0}::QueryableBackend> b".format(CYCNS)
 
     def impl(self, ind="  "):
         cg = self.machine

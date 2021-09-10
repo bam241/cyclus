@@ -158,7 +158,7 @@ Composition::Ptr ReadRecipe(InfileTree* qe) {
 }
 
 XMLFileLoader::XMLFileLoader(Recorder* r,
-                             QueryableBackend* b,
+                             std::shared_ptr<QueryableBackend> b,
                              std::string schema_file,
                              const std::string input_file,
                              const std::string format, bool ms_print) : b_(b), rec_(r) {
@@ -365,14 +365,14 @@ void XMLFileLoader::LoadInitialAgents() {
       conds.push_back(Cond("SimId", "==", rec_->sim_id()));
       conds.push_back(Cond("SimTime", "==", static_cast<int>(0)));
       conds.push_back(Cond("AgentId", "==", agent->id()));
-      CondInjector ci(b_, conds);
-      PrefixInjector pi(&ci, "AgentState");
+      std::shared_ptr<CondInjector> ci = std::make_shared<CondInjector>(b_, conds);
+      std::shared_ptr<PrefixInjector> pi = std::make_shared<PrefixInjector>(ci, "AgentState");
 
       // call manually without agent impl injected
-      agent->Agent::InitFrom(&pi);
+      agent->Agent::InitFrom(pi);
 
-      pi = PrefixInjector(&ci, "AgentState" + spec.Sanitize());
-      agent->InitFrom(&pi);
+      pi = std::make_shared<PrefixInjector>(ci, "AgentState" + spec.Sanitize());
+      agent->InitFrom(pi);
       ctx_->AddPrototype(prototype, agent);
     }
   }

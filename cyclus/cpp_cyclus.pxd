@@ -8,6 +8,8 @@ from libcpp.utility cimport pair
 from libcpp.string cimport string as std_string
 from libcpp cimport bool as cpp_bool
 from libcpp.typeinfo cimport type_info
+from libcpp.memory cimport shared_ptr as std_shared
+
 
 # we use boost shared_ptrs
 #from libcpp.memory cimport shared_ptr
@@ -166,7 +168,7 @@ cdef extern from "cyclus.h" namespace "cyclus":
         void inject_sim_id(cpp_bool) except +
         uuid sim_id() except +
         Datum* NewDatum(std_string)
-        void RegisterBackend(RecBackend*) except +
+        void RegisterBackend(std_shared[RecBackend]) except +
         void Flush() except +
         void Close() except +
 
@@ -293,10 +295,10 @@ cdef extern from "xml_file_loader.h" namespace "cyclus":
     cdef std_string LoadStringFromFile(std_string, std_string)
 
     cdef cppclass XMLFileLoader:
-        XMLFileLoader(Recorder*, QueryableBackend*, std_string)
-        XMLFileLoader(Recorder*, QueryableBackend*, std_string,
+        XMLFileLoader(Recorder*, std_shared[QueryableBackend], std_string)
+        XMLFileLoader(Recorder*, std_shared[QueryableBackend], std_string,
                       const std_string)
-        XMLFileLoader(Recorder*, QueryableBackend*, std_string,
+        XMLFileLoader(Recorder*, std_shared[QueryableBackend], std_string,
                       const std_string, const std_string, cpp_bool ms_print)
         void LoadSim() except +
 
@@ -304,10 +306,10 @@ cdef extern from "xml_file_loader.h" namespace "cyclus":
 cdef extern from "xml_flat_loader.h" namespace "cyclus":
 
     cdef cppclass XMLFlatLoader(XMLFileLoader):
-        XMLFlatLoader(Recorder*, QueryableBackend*, std_string)
-        XMLFlatLoader(Recorder*, QueryableBackend*, std_string,
+        XMLFlatLoader(Recorder*, std_shared[QueryableBackend], std_string)
+        XMLFlatLoader(Recorder*, std_shared[QueryableBackend], std_string,
                       const std_string)
-        XMLFlatLoader(Recorder*, QueryableBackend*, std_string,
+        XMLFlatLoader(Recorder*, std_shared[QueryableBackend], std_string,
                       const std_string, const std_string, cpp_bool ms_print)
 
 
@@ -343,7 +345,7 @@ cdef extern from "sim_init.h" namespace "cyclus":
 
     cdef cppclass SimInit:
         SimInit() except +
-        void Init(Recorder*, QueryableBackend*) except +
+        void Init(Recorder*, std_shared[QueryableBackend]) except +
         Timer* timer() except +
         Context* context() except +
 
@@ -642,7 +644,7 @@ cdef extern from "agent.h" namespace "cyclus":
         Agent* Clone()
         void InfileToDb(InfileTree*, DbInit)
         void InitFromAgent "InitFrom" (Agent*)
-        void InitFrom(QueryableBackend*)
+        void InitFrom(std_shared[QueryableBackend])
         void Snapshot(DbInit)
         void InitInv(Inventories&)
         Inventories SnapshotInv()
@@ -720,7 +722,7 @@ cdef extern from "region.h" namespace "cyclus":
     cdef cppclass Region(Agent, TimeListener):
         Region(Context*)
         void InitFromAgent "InitFrom" (Region*)
-        void InitFrom(QueryableBackend*)
+        void InitFrom(std_shared[QueryableBackend])
         void InfileToDb(InfileTree*, DbInit)
         void Build(Agent*)
         void EnterNotify()
@@ -734,7 +736,7 @@ cdef extern from "institution.h" namespace "cyclus":
     cdef cppclass Institution(Agent, TimeListener):
         Institution(Context*)
         void InitFromAgent "InitFrom" (Institution*)
-        void InitFrom(QueryableBackend*)
+        void InitFrom(std_shared[QueryableBackend])
         void InfileToDb(InfileTree*, DbInit)
         void Build(Agent*)
         void EnterNotify()
@@ -748,7 +750,7 @@ cdef extern from "facility.h" namespace "cyclus":
     cdef cppclass Facility(TimeListener, Agent, Trader):
         Facility(Context*)
         void InitFromAgent "InitFrom" (Facility*)
-        void InitFrom(QueryableBackend*)
+        void InitFrom(std_shared[QueryableBackend])
         void InfileToDb(InfileTree*, DbInit)
         void Build(Agent*)
         void EnterNotify()
@@ -785,7 +787,7 @@ cdef extern from "context.h" namespace "cyclus":
 
     cdef cppclass Context:
         Context(Timer*, Recorder*) except +
-        void DelAgent(Agent*) except +
+        void DelAgent(Agent*, cpp_bool) except +
         uuid sim_id() except +
         int time()
         uint64_t dt()

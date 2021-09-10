@@ -400,7 +400,7 @@ def test_ifdbfilter():
     f.given_classname = 'MyFactory'
 
     args = f.methodargs()
-    exp_args = "cyclus::QueryableBackend* b"
+    exp_args = "std::shared_ptr<cyclus::QueryableBackend> b"
     yield assert_equal, exp_args, args
 
     impl = f.impl()

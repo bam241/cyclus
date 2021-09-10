@@ -10,7 +10,7 @@ namespace cyclus {
 // The code for this function was copied with minor adjustements from
 // XMLFileLoader::LoadInitialAgents
 void InitAgent(Agent* a, std::stringstream& config, Recorder* rec,
-               SqliteBack* back) {
+               std::shared_ptr<SqliteBack> back) {
   XMLParser parser_;
   parser_.Init(config);
   InfileTree xqe(parser_);
@@ -23,21 +23,21 @@ void InitAgent(Agent* a, std::stringstream& config, Recorder* rec,
   conds.push_back(Cond("SimId", "==", rec->sim_id()));
   conds.push_back(Cond("SimTime", "==", static_cast<int>(0)));
   conds.push_back(Cond("AgentId", "==", a->id()));
-  CondInjector ci(back, conds);
+  std::shared_ptr<CondInjector> ci = std::make_shared<CondInjector>(back, conds);
 
   // call manually without agent impl injected
-  PrefixInjector pi(&ci, "AgentState");
-  a->Agent::InitFrom(&pi);
+  std::shared_ptr<PrefixInjector> pi = std::make_shared<PrefixInjector>(ci, "AgentState");
+  a->Agent::InitFrom(pi);
 
-  pi = PrefixInjector(&ci, "AgentState" + AgentSpec(a->spec()).Sanitize());
-  a->InitFrom(&pi);
+  pi = std::make_shared<PrefixInjector>(ci, "AgentState" + AgentSpec(a->spec()).Sanitize());
+  a->InitFrom(pi);
 }
 
 ///////// MockAgent ////////////
 
 int MockAgent::nextid_ = 0;
 
-MockAgent::MockAgent(Context* ctx, Recorder* rec, SqliteBack* b, bool is_source)
+MockAgent::MockAgent(Context* ctx, Recorder* rec, std::shared_ptr<SqliteBack> b, bool is_source)
     : ctx_(ctx),
       rec_(rec),
       back_(b),
@@ -116,7 +116,7 @@ MockSim::MockSim(int duration)
     : ctx_(&ti_, &rec_), back_(NULL), agent(NULL) {
   Env::SetNucDataPath();
   warn_limit = 0;
-  back_ = new SqliteBack(":memory:");
+  back_ = std::make_shared<SqliteBack>(":memory:");
   rec_.RegisterBackend(back_);
   ctx_.InitSim(SimInfo(duration));
 }
@@ -125,7 +125,7 @@ MockSim::MockSim(AgentSpec spec, std::string config, int duration)
     : ctx_(&ti_, &rec_), back_(NULL), agent(NULL) {
   Env::SetNucDataPath();
   warn_limit = 0;
-  back_ = new SqliteBack(":memory:");
+  back_ = std::make_shared<SqliteBack>(":memory:");
   rec_.RegisterBackend(back_);
   ctx_.InitSim(SimInfo(duration));
 
@@ -144,7 +144,7 @@ MockSim::MockSim(AgentSpec spec, std::string config, int duration, int lifetime)
     : ctx_(&ti_, &rec_), back_(NULL), agent(NULL) {
   Env::SetNucDataPath();
   warn_limit = 0;
-  back_ = new SqliteBack(":memory:");
+  back_ = std::make_shared<SqliteBack>(":memory:");
   rec_.RegisterBackend(back_);
   ctx_.InitSim(SimInfo(duration));
 
@@ -193,7 +193,6 @@ void MockSim::DummyProto(std::string name, std::string commod, double capacity) 
 MockSim::~MockSim() {
   warn_limit = 42;
   rec_.Close();
-  delete back_;
 }
 
 MockAgent MockSim::AddSource(std::string commod) {

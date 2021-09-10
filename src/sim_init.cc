@@ -22,14 +22,14 @@ SimInit::~SimInit() {
   }
 }
 
-void SimInit::Init(Recorder* r, QueryableBackend* b) {
+void SimInit::Init(Recorder* r, std::shared_ptr<QueryableBackend> b) {
   Recorder tmprec;
   rec_ = &tmprec;  // use dummy recorder to avoid re-recording
   InitBase(b, r->sim_id(), 0);
   ctx_->rec_ = r;  // switch back before running sim
 }
 
-void SimInit::Restart(QueryableBackend* b, boost::uuids::uuid sim_id, int t) {
+void SimInit::Restart(std::shared_ptr<QueryableBackend> b, boost::uuids::uuid sim_id, int t) {
   Warn<EXPERIMENTAL_WARNING>("restart capability is not finalized and fully"
                              " tested. Its behavior may change in future"
                              " releases.");
@@ -41,17 +41,17 @@ void SimInit::Restart(QueryableBackend* b, boost::uuids::uuid sim_id, int t) {
   ctx_->InitSim(si_);  // explicitly force this to show up in the new simulations output db
 }
 
-void SimInit::Branch(QueryableBackend* b, boost::uuids::uuid prev_sim_id,
+void SimInit::Branch(std::shared_ptr<QueryableBackend> b, boost::uuids::uuid prev_sim_id,
                      int t, boost::uuids::uuid new_sim_id) {
   throw Error("simulation branching feature not implemented");
 }
 
-void SimInit::InitBase(QueryableBackend* b, boost::uuids::uuid simid, int t) {
+void SimInit::InitBase(std::shared_ptr<QueryableBackend> b, boost::uuids::uuid simid, int t) {
   ctx_ = new Context(&ti_, rec_);
 
   std::vector<Cond> conds;
   conds.push_back(Cond("SimId", "==", simid));
-  b_ = new CondInjector(b, conds);
+  b_ = std::make_shared<CondInjector>(b, conds);
   t_ = t;
   simid_ = simid;
 
@@ -312,14 +312,14 @@ void SimInit::LoadPrototypes() {
     // when the simulation is initialized.
     std::vector<Cond> conds;
     conds.push_back(Cond("AgentId", "==", agentid));
-    CondInjector ci(b_, conds);
-    PrefixInjector pi(&ci, "AgentState");
+    std::shared_ptr<CondInjector> ci = std::make_shared<CondInjector>(b_, conds);
+    std::shared_ptr<PrefixInjector> pi = std::make_shared<PrefixInjector>(ci, "AgentState");
 
     // call manually without agent impl injected
-    m->Agent::InitFrom(&pi);
+    m->Agent::InitFrom(pi);
 
-    pi = PrefixInjector(&ci, "AgentState" + spec.Sanitize());
-    m->InitFrom(&pi);
+    pi = std::make_shared<PrefixInjector>(ci, "AgentState" + spec.Sanitize());
+    m->InitFrom(pi);
     ctx_->AddPrototype(proto, m);
   }
 }
@@ -369,11 +369,11 @@ void SimInit::LoadInitialAgents() {
     // agent-custom init
     conds.pop_back();
     conds.push_back(Cond("SimTime", "==", t_));
-    CondInjector ci(b_, conds);
-    PrefixInjector pi(&ci, "AgentState");
-    m->Agent::InitFrom(&pi);
-    pi = PrefixInjector(&ci, "AgentState" + spec.Sanitize());
-    m->InitFrom(&pi);
+    std::shared_ptr<CondInjector> ci = std::make_shared<CondInjector>(b_, conds);
+    std::shared_ptr<PrefixInjector> pi = std::make_shared<PrefixInjector>(ci, "AgentState");
+    m->Agent::InitFrom(pi);
+    pi = std::make_shared<PrefixInjector>(ci, "AgentState" + spec.Sanitize());
+    m->InitFrom(pi);
   }
 
   // construct agent hierarchy starting at roots (no parent) down
@@ -488,7 +488,7 @@ void SimInit::LoadNextIds() {
   }
 }
 
-Material::Ptr SimInit::BuildMaterial(QueryableBackend* b, int resid) {
+Material::Ptr SimInit::BuildMaterial(std::shared_ptr<QueryableBackend> b, int resid) {
   Timer ti;
   Recorder rec;
   Context ctx(&ti, &rec);
@@ -502,7 +502,7 @@ Material::Ptr SimInit::BuildMaterial(QueryableBackend* b, int resid) {
   return m;
 }
 
-Product::Ptr SimInit::BuildProduct(QueryableBackend* b, int resid) {
+Product::Ptr SimInit::BuildProduct(std::shared_ptr<QueryableBackend> b, int resid) {
   Timer ti;
   Recorder rec;
   Context ctx(&ti, &rec);
@@ -516,7 +516,7 @@ Product::Ptr SimInit::BuildProduct(QueryableBackend* b, int resid) {
   return p;
 }
 
-Resource::Ptr SimInit::LoadResource(Context* ctx, QueryableBackend* b, int state_id) {
+Resource::Ptr SimInit::LoadResource(Context* ctx, std::shared_ptr<QueryableBackend> b, int state_id) {
   std::vector<Cond> conds;
   conds.push_back(Cond("ResourceId", "==", state_id));
   QueryResult qr = b->Query("Resources", &conds);
@@ -537,7 +537,7 @@ Resource::Ptr SimInit::LoadResource(Context* ctx, QueryableBackend* b, int state
   return r;
 }
 
-Material::Ptr SimInit::LoadMaterial(Context* ctx, QueryableBackend* b, int state_id) {
+Material::Ptr SimInit::LoadMaterial(Context* ctx, std::shared_ptr<QueryableBackend> b, int state_id) {
   // get special material object state
   std::vector<Cond> conds;
   conds.push_back(Cond("ResourceId", "==", state_id));
@@ -561,7 +561,7 @@ Material::Ptr SimInit::LoadMaterial(Context* ctx, QueryableBackend* b, int state
   return mat;
 }
 
-Composition::Ptr SimInit::LoadComposition(QueryableBackend* b, int stateid) {
+Composition::Ptr SimInit::LoadComposition(std::shared_ptr<QueryableBackend> b, int stateid) {
   std::vector<Cond> conds;
   conds.push_back(Cond("QualId", "==", stateid));
   QueryResult qr = b->Query("Compositions", &conds);
@@ -577,7 +577,7 @@ Composition::Ptr SimInit::LoadComposition(QueryableBackend* b, int stateid) {
   return c;
 }
 
-Product::Ptr SimInit::LoadProduct(Context* ctx, QueryableBackend* b, int state_id) {
+Product::Ptr SimInit::LoadProduct(Context* ctx, std::shared_ptr<QueryableBackend> b, int state_id) {
   // get general resource object info
   std::vector<Cond> conds;
   conds.push_back(Cond("ResourceId", "==", state_id));

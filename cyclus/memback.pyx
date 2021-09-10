@@ -2,10 +2,15 @@
 from __future__ import print_function, unicode_literals
 from libcpp.map cimport map as std_map
 from libcpp.set cimport set as std_set
+from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector as std_vector
 from libcpp.utility cimport pair as std_pair
 from libcpp.string cimport string as std_string
 from libcpp cimport bool as cpp_bool
+from libcpp.memory cimport shared_ptr as std_shared
+from libcpp.memory cimport make_shared as std_make_shared
+from libcpp.memory cimport dynamic_pointer_cast as std_dynamic_cast
+
 
 from cpython cimport (PyObject, PyDict_New, PyDict_Contains,
     PyDict_GetItemString, PyDict_SetItemString, PyString_FromString,
@@ -120,22 +125,23 @@ cdef cppclass CyclusMemBack "CyclusMemBack" (cpp_cyclus.RecBackend):
 cdef class _MemBack(lib._FullBackend):
 
     def __cinit__(self, registry=True, fallback=None):
-        self.ptx = new CyclusMemBack()
-        self.cache = (<CyclusMemBack*> self.ptx).Init()
+        cdef std_shared[CyclusMemBack] ptr_tmp = std_make_shared[CyclusMemBack]()
+        self.ptx = std_dynamic_cast[cpp_cyclus.FullBackend, CyclusMemBack](ptr_tmp)
+        self.cache = (<CyclusMemBack*> self.ptx.get()).Init()
         self._registry = None
         self.registry = registry
         self.fallback = fallback
         self._query_code_cache = {}
         self._query_code_lru = deque()
 
-    def __dealloc__(self):
-        # Note that we have to do it this way since self.ptx is void*
-        if self.ptx == NULL:
-            return
-        cdef CyclusMemBack* cpp_ptx = <CyclusMemBack*> self.ptx
-        cpp_ptx.Close()
-        del cpp_ptx
-        self.ptx = NULL
+    # def __dealloc__(self):
+    #     # Note that we have to do it this way since self.ptx is void*
+    #     if self.ptx == NULL:
+    #         return
+    #     cdef CyclusMemBack* cpp_ptx = <CyclusMemBack*> self.ptx
+    #     cpp_ptx.Close()
+    #     del cpp_ptx
+    #     self.ptx = NULL
 
     #
     # RecBackened Interface
@@ -196,13 +202,13 @@ cdef class _MemBack(lib._FullBackend):
     def close(self):
         """Closes the backend, flushing it in the process."""
         self.flush()  # just in case
-        (<CyclusMemBack*> self.ptx).Close()
+        (<CyclusMemBack*> self.ptx.get()).Close()
         self.cache = None
 
     @property
     def name(self):
         """The name of the database."""
-        return "<Python In-Memory Backend at " + str(<unsigned long> self.ptx) + ">"
+        return "<Python In-Memory Backend at " + str(<unsigned long> self.ptx.get()) + ">"
 
     #
     # Extra Interface
@@ -212,7 +218,7 @@ cdef class _MemBack(lib._FullBackend):
         """Whether or not the backend will store all tables or only
         those in the registry.
         """
-        return bool_to_py((<CyclusMemBack*> self.ptx).store_all_tables)
+        return bool_to_py((<CyclusMemBack*> self.ptx.get()).store_all_tables)
 
     @property
     def registry(self):
@@ -224,13 +230,13 @@ cdef class _MemBack(lib._FullBackend):
         old cache values.
         """
         if self._registry is None:
-            r = std_set_std_string_to_py((<CyclusMemBack*> self.ptx).registry)
+            r = std_set_std_string_to_py((<CyclusMemBack*> self.ptx.get()).registry)
             self._registry = frozenset(r)
         return self._registry
 
     @registry.setter
     def registry(self, val):
-        cdef CyclusMemBack* cpp_ptx = <CyclusMemBack*> self.ptx
+        cdef CyclusMemBack* cpp_ptx = (<CyclusMemBack*> self.ptx.get())
         cache = self.cache
         if val is None or isinstance(val, bool):
             cpp_ptx.registry.clear()

@@ -5,6 +5,7 @@ from libcpp.set cimport set as std_set
 from libcpp.vector cimport vector as std_vector
 from libcpp.utility cimport pair as std_pair
 from libcpp.string cimport string as std_string
+from libcpp.memory cimport shared_ptr as std_shared
 from libcpp cimport bool as cpp_bool
 from libcpp.cast cimport reinterpret_cast, dynamic_cast
 from cython.operator cimport dereference as deref
@@ -17,7 +18,7 @@ from cpython cimport (PyObject, PyDict_New, PyDict_Contains,
 import json
 from inspect import getmro, getdoc
 from copy import deepcopy
-from collections import Mapping
+from collections.abc import Mapping
 
 from cyclus cimport cpp_cyclus
 from cyclus.cpp_cyclus cimport shared_ptr, reinterpret_pointer_cast
@@ -90,9 +91,9 @@ cdef cppclass CyclusAgentShim "CyclusAgentShim" (cpp_cyclus.Agent):
         # call generic python
         (<object> this.self).infile_to_db(py_tree, py_di)
 
-    void InitFrom(cpp_cyclus.QueryableBackend* b) except +:
+    void InitFrom(std_shared[cpp_cyclus.QueryableBackend] b) except +:
         cpp_cyclus.Agent.InitFrom(b)
-        cdef cpp_cyclus.QueryResult qr = b.Query(std_string(<char*> "Info"), NULL)
+        cdef cpp_cyclus.QueryResult qr = (<cpp_cyclus.QueryableBackend*>b.get()).Query(std_string(<char*> "Info"), NULL)
         res, _ = lib.single_query_result_to_py(qr, 0)
         # call generic python
         self = (<object> this.self)
@@ -214,9 +215,9 @@ cdef cppclass CyclusRegionShim "CyclusRegionShim" (cpp_cyclus.Region):
         # call generic python
         (<object> this.self).infile_to_db(py_tree, py_di)
 
-    void InitFrom(cpp_cyclus.QueryableBackend* b) except +:
+    void InitFrom(std_shared[cpp_cyclus.QueryableBackend] b) except +:
         cpp_cyclus.Region.InitFrom(b)
-        cdef cpp_cyclus.QueryResult qr = b.Query(std_string(<char*> "Info"), NULL)
+        cdef cpp_cyclus.QueryResult qr = (<cpp_cyclus.QueryableBackend*>b.get()).Query(std_string(<char*> "Info"), NULL)
         res, _ = lib.single_query_result_to_py(qr, 0)
         # call generic python
         self = (<object> this.self)
@@ -347,9 +348,9 @@ cdef cppclass CyclusInstitutionShim "CyclusInstitutionShim" (cpp_cyclus.Institut
         # call generic python
         (<object> this.self).infile_to_db(py_tree, py_di)
 
-    void InitFrom(cpp_cyclus.QueryableBackend* b) except +:
+    void InitFrom(std_shared[cpp_cyclus.QueryableBackend] b) except +:
         cpp_cyclus.Institution.InitFrom(b)
-        cdef cpp_cyclus.QueryResult qr = b.Query(std_string(<char*> "Info"), NULL)
+        cdef cpp_cyclus.QueryResult qr = (<cpp_cyclus.QueryableBackend*>b.get()).Query(std_string(<char*> "Info"), NULL)
         res, _ = lib.single_query_result_to_py(qr, 0)
         # call generic python
         self = (<object> this.self)
@@ -489,9 +490,9 @@ cdef cppclass CyclusFacilityShim "CyclusFacilityShim" (cpp_cyclus.Facility):
         # call generic python
         (<object> this.self).infile_to_db(py_tree, py_di)
 
-    void InitFrom(cpp_cyclus.QueryableBackend* b) except +:
+    void InitFrom(std_shared[cpp_cyclus.QueryableBackend] b) except +:
         cpp_cyclus.Facility.InitFrom(b)
-        cdef cpp_cyclus.QueryResult qr = b.Query(std_string(<char*> "Info"), NULL)
+        cdef cpp_cyclus.QueryResult qr = (<cpp_cyclus.QueryableBackend*>b.get()).Query(std_string(<char*> "Info"), NULL)
         res, _ = lib.single_query_result_to_py(qr, 0)
         # call generic python
         self = (<object> this.self)

@@ -29,7 +29,7 @@ class MockAgent {
   /// sink (is_source == false) in the provided simulation context.  rec must be
   /// the recorder used to initialize ctx and b must be a backend registered
   /// with rec.
-  MockAgent(Context* ctx, Recorder* rec, SqliteBack* b, bool is_source);
+  MockAgent(Context* ctx, Recorder* rec, std::shared_ptr<SqliteBack> b, bool is_source);
 
   /// Sets the commodity to be offered/requested by the source/sink.
   MockAgent commod(std::string commod);
@@ -66,7 +66,7 @@ class MockAgent {
   std::string proto_;
   Context* ctx_;
   Recorder* rec_;
-  SqliteBack* back_;
+  std::shared_ptr<SqliteBack> back_;
 };
 
 /// MockSim is a helper for running full simulations entirely in-code to test
@@ -233,7 +233,7 @@ class MockSim {
   Context ctx_;
   Timer ti_;
   Recorder rec_;
-  SqliteBack* back_;
+  std::shared_ptr<SqliteBack> back_;
 };
 
 }  // namespace cyclus

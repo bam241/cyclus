@@ -68,14 +68,14 @@ void XMLFlatLoader::LoadInitialAgents() {
     conds.push_back(Cond("SimId", "==", rec_->sim_id()));
     conds.push_back(Cond("AgentId", "==", agent->id()));
     conds.push_back(Cond("SimTime", "==", static_cast<int>(0)));
-    CondInjector ci(b_, conds);
-    PrefixInjector pi(&ci, "AgentState");
+    std::shared_ptr<CondInjector> ci = std::make_shared<CondInjector>(b_, conds);
+    std::shared_ptr<PrefixInjector> pi = std::make_shared<PrefixInjector>(ci, "AgentState");
 
     // call manually without agent impl injected
-    agent->Agent::InitFrom(&pi);
+    agent->Agent::InitFrom(pi);
 
-    pi = PrefixInjector(&ci, "AgentState" + spec.Sanitize());
-    agent->InitFrom(&pi);
+    pi = std::make_shared<PrefixInjector>(ci, "AgentState" + spec.Sanitize());
+    agent->InitFrom(pi);
     ctx_->AddPrototype(prototype, agent);
   }
 

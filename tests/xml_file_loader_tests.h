@@ -17,7 +17,7 @@ class XMLFileLoaderTests : public ::testing::Test {
   std::string control_file, decay_control_file, solver_control_file, eps_file,
       false_file, module_file, recipe_file;
 
-  cyclus::FullBackend* b_;
+  std::shared_ptr<cyclus::FullBackend> b_;
   cyclus::Recorder rec_;
   std::string schema_path;
 

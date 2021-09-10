@@ -250,29 +250,29 @@ def generate_and_test():
         raise SkipTest(msg)
     if os.path.isfile(PATH):
         os.remove(PATH)
-    for i in CANON_TYPES:
-        print(CANON_TO_DB[i],'\n')                
-        rec = Recorder(inject_sim_id=False)
-        back = Hdf5Back(PATH)
-        rec.register_backend(back)
-        data_meta = generate_meta(i)
-        shape = get_shape(data_meta)
-        print("shape: ", shape)
-        data = []
-        for j in range(ROW_NUM):
-            data.append(populate(data_meta))
-        exp = pd.DataFrame({'col0': data}, columns=['col0'])
-        print("expected: \n", exp)
-        for j in data:
-            d = rec.new_datum("test0")
-            d.add_val("col0", j, shape=shape, type=ts.IDS[CANON_TO_DB[i]])
-            d.record()
-            rec.flush()
-        obs = back.query("test0")
-        print("observed: \n", obs)
-        yield assert_frame_equal, exp, obs
-        rec.close()
-        os.remove(PATH)
+    # for i in CANON_TYPES:
+    #     print(CANON_TO_DB[i],'\n')                
+    #     rec = Recorder(inject_sim_id=False)
+    #     back = Hdf5Back(PATH)
+    #     rec.register_backend(back)
+    #     data_meta = generate_meta(i)
+    #     shape = get_shape(data_meta)
+    #     print("shape: ", shape)
+    #     data = []
+    #     for j in range(ROW_NUM):
+    #         data.append(populate(data_meta))
+    #     exp = pd.DataFrame({'col0': data}, columns=['col0'])
+    #     print("expected: \n", exp)
+    #     for j in data:
+    #         d = rec.new_datum("test0")
+    #         d.add_val("col0", j, shape=shape, type=ts.IDS[CANON_TO_DB[i]])
+    #         d.record()
+    #         rec.flush()
+    #     obs = back.query("test0")
+    #     print("observed: \n", obs)
+    #     yield assert_frame_equal, exp, obs
+    #     rec.close()
+    #     os.remove(PATH)
 
 if __name__ == "__main__":
     nose.runmodule()

@@ -95,7 +95,7 @@ void Recorder::Flush() {
   DatumList tmp = data_;
   tmp.resize(index_);
   index_ = 0;
-  std::list<RecBackend*>::iterator it;
+  std::list<std::shared_ptr<RecBackend>>::iterator it;
   for (it = backs_.begin(); it != backs_.end(); it++) {
     (*it)->Notify(tmp);
     (*it)->Flush();
@@ -104,13 +104,13 @@ void Recorder::Flush() {
 
 void Recorder::NotifyBackends() {
   index_ = 0;
-  std::list<RecBackend*>::iterator it;
+  std::list<std::shared_ptr<RecBackend>>::iterator it;
   for (it = backs_.begin(); it != backs_.end(); it++) {
     (*it)->Notify(data_);
   }
 }
 
-void Recorder::RegisterBackend(RecBackend* b) {
+void Recorder::RegisterBackend(std::shared_ptr<RecBackend> b) {
   backs_.push_back(b);
 }
 

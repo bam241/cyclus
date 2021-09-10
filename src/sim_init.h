@@ -30,18 +30,18 @@ class SimInit {
   /// Initialize a simulation with data from b for simulation id in r. SimInit
   /// does not take ownership of the recorder or backend. the configured
   /// context's recorder is set to r.
-  void Init(Recorder* r, QueryableBackend* b);
+  void Init(Recorder* r, std::shared_ptr<QueryableBackend> b);
 
   /// EXPERIMENTAL (might not work properly). Restarts a simulation from time t
   /// with data from b identified by simid.  The newly configured simulation
   /// will run with a new simulation id.
-  void Restart(QueryableBackend* b, boost::uuids::uuid sim_id, int t);
+  void Restart(std::shared_ptr<QueryableBackend> b, boost::uuids::uuid sim_id, int t);
 
   /// NOT IMPLEMENTED. Initializes a simulation branched from prev_sim_id at
   /// time t with diverging state described in new_sim_id.
   ///
   /// TODO(rwcarlsen): implement
-  void Branch(QueryableBackend* b, boost::uuids::uuid prev_sim_id, int t,
+  void Branch(std::shared_ptr<QueryableBackend> b, boost::uuids::uuid prev_sim_id, int t,
               boost::uuids::uuid new_sim_id);
 
   /// Records a snapshot of the current state of the simulation being managed by
@@ -68,15 +68,15 @@ class SimInit {
   /// Convenience function for reconstructing an untracked material object with
   /// the given resource state id from a database backend b.  Particularly
   /// useful for running mock simulations/tests.
-  static Material::Ptr BuildMaterial(QueryableBackend* b, int resid);
+  static Material::Ptr BuildMaterial(std::shared_ptr<QueryableBackend> b, int resid);
 
   /// Convenience function for reconstructing an untracked product object with
   /// the given resource state id from a database backend b.  Particularly
   /// useful for running mock simulations/tests.
-  static Product::Ptr BuildProduct(QueryableBackend* b, int resid);
+  static Product::Ptr BuildProduct(std::shared_ptr<QueryableBackend> b, int resid);
 
  private:
-  void InitBase(QueryableBackend* b, boost::uuids::uuid simid, int t);
+  void InitBase(std::shared_ptr<QueryableBackend> b, boost::uuids::uuid simid, int t);
 
   void LoadInfo();
   void LoadRecipes();
@@ -91,10 +91,10 @@ class SimInit {
   void* LoadPreconditioner(std::string name);
   ExchangeSolver* LoadGreedySolver(bool exclusive, std::set<std::string> tables);
   ExchangeSolver* LoadCoinSolver(bool exclusive, std::set<std::string> tables);
-  static Resource::Ptr LoadResource(Context* ctx, QueryableBackend* b, int resid);
-  static Material::Ptr LoadMaterial(Context* ctx, QueryableBackend* b, int resid);
-  static Product::Ptr LoadProduct(Context* ctx, QueryableBackend* b, int resid);
-  static Composition::Ptr LoadComposition(QueryableBackend* b, int stateid);
+  static Resource::Ptr LoadResource(Context* ctx, std::shared_ptr<QueryableBackend> b, int resid);
+  static Material::Ptr LoadMaterial(Context* ctx, std::shared_ptr<QueryableBackend> b, int resid);
+  static Product::Ptr LoadProduct(Context* ctx, std::shared_ptr<QueryableBackend> b, int resid);
+  static Composition::Ptr LoadComposition(std::shared_ptr<QueryableBackend> b, int stateid);
 
   // std::map<AgentId, Agent*>
   std::map<int, Agent*> agents_;
@@ -104,7 +104,7 @@ class SimInit {
   Timer ti_;
   boost::uuids::uuid simid_;
   SimInfo si_;
-  QueryableBackend* b_;
+  std::shared_ptr<QueryableBackend> b_;
   int t_;
 };
 

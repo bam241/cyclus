@@ -34,7 +34,7 @@ class Inver : public cy::Facility {
     val1 = a->val1;
   }
 
-  virtual void InitFrom(cy::QueryableBackend* b) {
+  virtual void InitFrom(std::shared_ptr<cy::QueryableBackend> b) {
     cy::Facility::InitFrom(b);
     cy::QueryResult qr = b->Query("Info", NULL);
     val1 = qr.GetVal<int>("val1");
@@ -95,7 +95,7 @@ class SimInitTest : public ::testing::Test {
     resetnextids();
     cy::DynamicModule::man_ctors_[":Inver:Inver"] = ConstructInver;
 
-    b = new cy::SqliteBack(dbpath);
+    b = std::make_shared<cy::SqliteBack>(dbpath);
     rec.RegisterBackend(b);
     ctx = new cy::Context(&ti, &rec);
     ctx->NewDatum("SolverInfo")
@@ -142,7 +142,6 @@ class SimInitTest : public ::testing::Test {
   virtual void TearDown() {
     rec.Close();
     delete ctx;
-    delete b;
   }
 
   void resetnextids() {
@@ -174,7 +173,7 @@ class SimInitTest : public ::testing::Test {
   cy::Context* ctx;
   cy::Timer ti;
   cy::Recorder rec;
-  cy::SqliteBack* b;
+  std::shared_ptr<cy::SqliteBack> b;
 };
 
 TEST_F(SimInitTest, InitNextIds) {

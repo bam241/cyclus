@@ -114,8 +114,8 @@ TEST(TimerTests, EarlyTermination) {
   cyclus::Recorder rec;
   cyclus::Timer ti;
   cyclus::Context ctx(&ti, &rec);
-  cyclus::SqliteBack b(path);
-  rec.RegisterBackend(&b);
+  std::shared_ptr<cyclus::SqliteBack> b = std::make_shared<cyclus::SqliteBack>(path);
+  rec.RegisterBackend(b);
 
   ti.Initialize(&ctx, cyclus::SimInfo(10));
 
@@ -125,7 +125,7 @@ TEST(TimerTests, EarlyTermination) {
   ti.RunSim();
   rec.Close();
 
-  cyclus::QueryResult qr = b.Query("Finish", NULL);
+  cyclus::QueryResult qr = b->Query("Finish", NULL);
   bool early = qr.GetVal<bool>("EarlyTerm");
   int end = qr.GetVal<int>("EndTime");
 
@@ -139,8 +139,8 @@ TEST(TimerTests, DefaultSnapshotTick) {
   cyclus::Recorder rec;
   cyclus::Timer ti;
   cyclus::Context ctx(&ti, &rec);
-  cyclus::SqliteBack b(path);
-  rec.RegisterBackend(&b);
+  std::shared_ptr<cyclus::SqliteBack> b = std::make_shared<cyclus::SqliteBack>(path);
+  rec.RegisterBackend(b);
 
   ti.Initialize(&ctx, cyclus::SimInfo(10));
 
@@ -150,7 +150,7 @@ TEST(TimerTests, DefaultSnapshotTick) {
   ti.RunSim();
   rec.Close();
 
-  cyclus::QueryResult qr = b.Query("Snapshots", NULL);
+  cyclus::QueryResult qr = b->Query("Snapshots", NULL);
   EXPECT_EQ(1, qr.rows.size());
   EXPECT_EQ(10, qr.GetVal<int>("Time", 0));
   cyclus::PyStop();
@@ -161,8 +161,8 @@ TEST(TimerTests, DefaultSnapshotTock) {
   cyclus::Recorder rec;
   cyclus::Timer ti;
   cyclus::Context ctx(&ti, &rec);
-  cyclus::SqliteBack b(path);
-  rec.RegisterBackend(&b);
+  std::shared_ptr<cyclus::SqliteBack> b = std::make_shared<cyclus::SqliteBack>(path);
+  rec.RegisterBackend(b);
 
   ti.Initialize(&ctx, cyclus::SimInfo(10));
 
@@ -172,7 +172,7 @@ TEST(TimerTests, DefaultSnapshotTock) {
   ti.RunSim();
   rec.Close();
 
-  cyclus::QueryResult qr = b.Query("Snapshots", NULL);
+  cyclus::QueryResult qr = b->Query("Snapshots", NULL);
   EXPECT_EQ(1, qr.rows.size());
   EXPECT_EQ(10, qr.GetVal<int>("Time", 0));
   cyclus::PyStop();
@@ -184,8 +184,8 @@ TEST(TimerTests, DefaultSnapshotDec) {
   cyclus::Recorder rec;
   cyclus::Timer ti;
   cyclus::Context ctx(&ti, &rec);
-  cyclus::SqliteBack b(path);
-  rec.RegisterBackend(&b);
+  std::shared_ptr<cyclus::SqliteBack> b = std::make_shared<cyclus::SqliteBack>(path);
+  rec.RegisterBackend(b);
 
   ti.Initialize(&ctx, cyclus::SimInfo(10));
 
@@ -195,7 +195,7 @@ TEST(TimerTests, DefaultSnapshotDec) {
   ti.RunSim();
   rec.Close();
 
-  cyclus::QueryResult qr = b.Query("Snapshots", NULL);
+  cyclus::QueryResult qr = b->Query("Snapshots", NULL);
   EXPECT_EQ(1, qr.rows.size());
   EXPECT_EQ(10, qr.GetVal<int>("Time", 0));
   cyclus::PyStop();
@@ -206,8 +206,8 @@ TEST(TimerTests, CustomSnapshot) {
   cyclus::Recorder rec;
   cyclus::Timer ti;
   cyclus::Context ctx(&ti, &rec);
-  cyclus::SqliteBack b(path);
-  rec.RegisterBackend(&b);
+  std::shared_ptr<cyclus::SqliteBack> b = std::make_shared<cyclus::SqliteBack>(path);
+  rec.RegisterBackend(b);
 
   ti.Initialize(&ctx, cyclus::SimInfo(10));
 
@@ -218,7 +218,7 @@ TEST(TimerTests, CustomSnapshot) {
   ti.RunSim();
   rec.Close();
 
-  cyclus::QueryResult qr = b.Query("Snapshots", NULL);
+  cyclus::QueryResult qr = b->Query("Snapshots", NULL);
   EXPECT_EQ(4, qr.rows.size());
   EXPECT_EQ(1, qr.GetVal<int>("Time", 0));
   EXPECT_EQ(4, qr.GetVal<int>("Time", 1));

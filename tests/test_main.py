@@ -26,9 +26,10 @@ def test_main():
         ['--cmake-module-path'],
         ['--build-path'],
         ['--rng-schema'],
-        ['--nuc-data'],
+        # ['--nuc-data'],
         ]
     for case in cases:
+        print(case)
         try:
             main(args=case)
             res = True

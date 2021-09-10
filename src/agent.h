@@ -44,7 +44,7 @@ typedef std::map<std::string, std::vector<Resource::Ptr> > Inventories;
 ///
 /// There are several functions that must be implemented in support of simulation
 /// initialization, snapshotting and restart: #InfileToDb,
-/// InitFrom(QueryableBackend*), #Snapshot, #SnapshotInv, and #InitInv.  These
+/// InitFrom(std::shared_ptr<QueryableBackend>), #Snapshot, #SnapshotInv, and #InitInv.  These
 /// functions all do inter-related things.  Notably, the #InfileToDb, #InitFrom,
 /// and #Snapshot functions must all write/read to/from the same database tables
 /// (and table schemas).
@@ -135,16 +135,16 @@ class Agent : public StateWrangler, virtual public Ider {
   /// Intializes an agent's internal state from the database. Appropriate
   /// simulation id, agent id, and time filters are automatically included in
   /// all queries. If the agent is a direct subclass of the Agent class, than
-  /// it should NOT call its superclass' InitFrom(QueryableBackend*) function.
+  /// it should NOT call its superclass' InitFrom(std::shared_ptr<QueryableBackend>) function.
   /// If, however, it is a subclasses other Agent subclasses (e.g. subclass of
   /// Facility, Region, etc.), then it MUST call its superclass'
-  /// InitFrom(QueryableBackend*) function. Example:
+  /// InitFrom(std::shared_ptr<QueryableBackend>) function. Example:
   ///
   /// @code
   /// class MyAgentClass : virtual public cyclus::Facility {
   ///   // ...
   ///
-  ///   void InitFrom(cyclus::QueryableBackend* b) {
+  ///   void InitFrom(cyclus::std::shared_ptr<QueryableBackend> b) {
   ///     cyclus::Facility::InitFrom(b);
   ///
   ///     cyclus::QueryResult qr = b->Query("MyAgentTable1", NULL);
@@ -165,7 +165,7 @@ class Agent : public StateWrangler, virtual public Ider {
   /// @endcode
   ///
   /// @warning Agents should NOT create any resource objects in this function.
-  virtual void InitFrom(QueryableBackend* b);
+  virtual void InitFrom(std::shared_ptr<QueryableBackend> b);
 
   /// Snapshots agent-internal state to the database via the DbInit var di.  The
   /// simulation id , agent id, and the simulation time are automatically

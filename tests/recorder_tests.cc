@@ -91,103 +91,103 @@ TEST(RecorderTest, InjectSimId) {
 TEST(RecorderTest, Manager_Closing) {
   using cyclus::Recorder;
   Recorder m;
-  TestBack back1;
-  TestBack back2;
-  m.RegisterBackend(&back1);
-  m.RegisterBackend(&back2);
+  std::shared_ptr<TestBack> back1 = std::make_shared<TestBack>();
+  std::shared_ptr<TestBack> back2 = std::make_shared<TestBack>();
+  m.RegisterBackend(back1);
+  m.RegisterBackend(back2);
 
-  ASSERT_FALSE(back1.flushed);
-  ASSERT_FALSE(back2.flushed);
+  ASSERT_FALSE(back1->flushed);
+  ASSERT_FALSE(back2->flushed);
   m.Close();
-  ASSERT_FALSE(back1.flushed);
-  ASSERT_FALSE(back2.flushed);
+  ASSERT_FALSE(back1->flushed);
+  ASSERT_FALSE(back2->flushed);
 
   Recorder n;
-  TestBack back3;
-  TestBack back4;
-  n.RegisterBackend(&back3);
-  n.RegisterBackend(&back4);
-  ASSERT_FALSE(back3.flushed);
-  ASSERT_FALSE(back4.flushed);
+  std::shared_ptr<TestBack> back3 = std::make_shared<TestBack>();
+  std::shared_ptr<TestBack> back4 = std::make_shared<TestBack>();
+  n.RegisterBackend(back3);
+  n.RegisterBackend(back4);
+  ASSERT_FALSE(back3->flushed);
+  ASSERT_FALSE(back4->flushed);
   n.NewDatum("DumbTitle")
       ->AddVal("animal", std::string("monkey"))
       ->Record();
   n.Close();
-  EXPECT_TRUE(back3.flushed);
-  EXPECT_TRUE(back4.flushed);
+  EXPECT_TRUE(back3->flushed);
+  EXPECT_TRUE(back4->flushed);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(RecorderTest, Manager_Buffering) {
   using cyclus::Recorder;
-  TestBack back1;
+  std::shared_ptr<TestBack> back1 = std::make_shared<TestBack>();
 
   Recorder m;
   m.set_dump_count(2);
-  m.RegisterBackend(&back1);
+  m.RegisterBackend(back1);
 
   m.NewDatum("DumbTitle")
       ->AddVal("animal", std::string("monkey"))
       ->Record();
 
-  EXPECT_EQ(back1.flush_count, 0);
-  EXPECT_EQ(back1.notify_count, 0);
+  EXPECT_EQ(back1->flush_count, 0);
+  EXPECT_EQ(back1->notify_count, 0);
 
   m.NewDatum("DumbTitle")
       ->AddVal("animal", std::string("elephant"))
       ->Record();
 
-  EXPECT_EQ(back1.flush_count, 2);
-  EXPECT_EQ(back1.notify_count, 1);
+  EXPECT_EQ(back1->flush_count, 2);
+  EXPECT_EQ(back1->notify_count, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(RecorderTest, Manager_CloseFlushing) {
   using cyclus::Recorder;
-  TestBack back1;
+  std::shared_ptr<TestBack> back1 = std::make_shared<TestBack>();
 
   Recorder m;
   m.set_dump_count(2);
-  m.RegisterBackend(&back1);
+  m.RegisterBackend(back1);
 
   m.NewDatum("DumbTitle")
       ->AddVal("animal", std::string("monkey"))
       ->Record();
 
-  EXPECT_EQ(back1.flush_count, 0);
-  EXPECT_EQ(back1.notify_count, 0);
+  EXPECT_EQ(back1->flush_count, 0);
+  EXPECT_EQ(back1->notify_count, 0);
 
   m.Close();
 
-  EXPECT_EQ(back1.flush_count, 1);
-  EXPECT_EQ(back1.notify_count, 1);
+  EXPECT_EQ(back1->flush_count, 1);
+  EXPECT_EQ(back1->notify_count, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(RecorderTest, Datum_record) {
   using cyclus::Datum;
   using cyclus::Recorder;
-  TestBack back;
+  std::shared_ptr<TestBack> back = std::make_shared<TestBack>();
   Recorder m;
   m.set_dump_count(1);
-  m.RegisterBackend(&back);
+  m.RegisterBackend(back);
 
-  EXPECT_EQ(back.flush_count, 0);
+  EXPECT_EQ(back->flush_count, 0);
 
   Datum* d = m.NewDatum("DumbTitle");
   d->AddVal("animal", std::string("monkey"))
       ->Record();
 
-  EXPECT_EQ(back.flush_count, 1);
+  EXPECT_EQ(back->flush_count, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(RecorderTest, Datum_addVal) {
   using cyclus::Datum;
   using cyclus::Recorder;
-  TestBack back;
+  std::shared_ptr<TestBack> back = std::make_shared<TestBack>();
   Recorder m;
-  m.RegisterBackend(&back);
+  m.RegisterBackend(back);
 
   cyclus::Datum* d = m.NewDatum("DumbTitle");
   d->AddVal("animal", std::string("monkey"));
@@ -212,8 +212,8 @@ TEST(RecorderTest, Datum_addVal) {
 
   m.Close();
 
-  cyclus::Datum::Vals vals = back.data.back()->vals();
-  EXPECT_EQ(d, back.data.back());
+  cyclus::Datum::Vals vals = back->data.back()->vals();
+  EXPECT_EQ(d, back->data.back());
 }
 
 
@@ -281,103 +281,103 @@ TEST(RawRecorderTest, InjectSimId) {
 TEST(RawRecorderTest, Manager_Closing) {
   using cyclus::Recorder;
   Recorder m (false);
-  TestBack back1;
-  TestBack back2;
-  m.RegisterBackend(&back1);
-  m.RegisterBackend(&back2);
+  std::shared_ptr<TestBack> back1 = std::make_shared<TestBack>();
+  std::shared_ptr<TestBack> back2 = std::make_shared<TestBack>();
+  m.RegisterBackend(back1);
+  m.RegisterBackend(back2);
 
-  ASSERT_FALSE(back1.flushed);
-  ASSERT_FALSE(back2.flushed);
+  ASSERT_FALSE(back1->flushed);
+  ASSERT_FALSE(back2->flushed);
   m.Close();
-  ASSERT_FALSE(back1.flushed);
-  ASSERT_FALSE(back2.flushed);
+  ASSERT_FALSE(back1->flushed);
+  ASSERT_FALSE(back2->flushed);
 
   Recorder n (false);
-  TestBack back3;
-  TestBack back4;
-  n.RegisterBackend(&back3);
-  n.RegisterBackend(&back4);
-  ASSERT_FALSE(back3.flushed);
-  ASSERT_FALSE(back4.flushed);
+  std::shared_ptr<TestBack> back3 = std::make_shared<TestBack>();
+  std::shared_ptr<TestBack> back4 = std::make_shared<TestBack>();
+  n.RegisterBackend(back3);
+  n.RegisterBackend(back4);
+  ASSERT_FALSE(back3->flushed);
+  ASSERT_FALSE(back4->flushed);
   n.NewDatum("DumbTitle")
       ->AddVal("animal", std::string("monkey"))
       ->Record();
   n.Close();
-  EXPECT_TRUE(back3.flushed);
-  EXPECT_TRUE(back4.flushed);
+  EXPECT_TRUE(back3->flushed);
+  EXPECT_TRUE(back4->flushed);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(RawRecorderTest, Manager_Buffering) {
   using cyclus::Recorder;
-  TestBack back1;
+  std::shared_ptr<TestBack> back1 = std::make_shared<TestBack>();
 
   Recorder m (false);
   m.set_dump_count(2);
-  m.RegisterBackend(&back1);
+  m.RegisterBackend(back1);
 
   m.NewDatum("DumbTitle")
       ->AddVal("animal", std::string("monkey"))
       ->Record();
 
-  EXPECT_EQ(back1.flush_count, 0);
-  EXPECT_EQ(back1.notify_count, 0);
+  EXPECT_EQ(back1->flush_count, 0);
+  EXPECT_EQ(back1->notify_count, 0);
 
   m.NewDatum("DumbTitle")
       ->AddVal("animal", std::string("elephant"))
       ->Record();
 
-  EXPECT_EQ(back1.flush_count, 2);
-  EXPECT_EQ(back1.notify_count, 1);
+  EXPECT_EQ(back1->flush_count, 2);
+  EXPECT_EQ(back1->notify_count, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(RawRecorderTest, Manager_CloseFlushing) {
   using cyclus::Recorder;
-  TestBack back1;
+  std::shared_ptr<TestBack> back1 = std::make_shared<TestBack>();
 
   Recorder m (false);
   m.set_dump_count(2);
-  m.RegisterBackend(&back1);
+  m.RegisterBackend(back1);
 
   m.NewDatum("DumbTitle")
       ->AddVal("animal", std::string("monkey"))
       ->Record();
 
-  EXPECT_EQ(back1.flush_count, 0);
-  EXPECT_EQ(back1.notify_count, 0);
+  EXPECT_EQ(back1->flush_count, 0);
+  EXPECT_EQ(back1->notify_count, 0);
 
   m.Close();
 
-  EXPECT_EQ(back1.flush_count, 1);
-  EXPECT_EQ(back1.notify_count, 1);
+  EXPECT_EQ(back1->flush_count, 1);
+  EXPECT_EQ(back1->notify_count, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(RawRecorderTest, Datum_record) {
   using cyclus::Datum;
   using cyclus::Recorder;
-  TestBack back;
+  std::shared_ptr<TestBack> back = std::make_shared<TestBack>();
   Recorder m (false);
   m.set_dump_count(1);
-  m.RegisterBackend(&back);
+  m.RegisterBackend(back);
 
-  EXPECT_EQ(back.flush_count, 0);
+  EXPECT_EQ(back->flush_count, 0);
 
   Datum* d = m.NewDatum("DumbTitle");
   d->AddVal("animal", std::string("monkey"))
       ->Record();
 
-  EXPECT_EQ(back.flush_count, 1);
+  EXPECT_EQ(back->flush_count, 1);
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 TEST(RawRecorderTest, Datum_addVal) {
   using cyclus::Datum;
   using cyclus::Recorder;
-  TestBack back;
+  std::shared_ptr<TestBack> back = std::make_shared<TestBack>();
   Recorder m (false);
-  m.RegisterBackend(&back);
+  m.RegisterBackend(back);
 
   cyclus::Datum* d = m.NewDatum("DumbTitle");
   d->AddVal("animal", std::string("monkey"));
@@ -399,6 +399,6 @@ TEST(RawRecorderTest, Datum_addVal) {
 
   m.Close();
 
-  cyclus::Datum::Vals vals = back.data.back()->vals();
-  EXPECT_EQ(d, back.data.back());
+  cyclus::Datum::Vals vals = back->data.back()->vals();
+  EXPECT_EQ(d, back->data.back());
 }

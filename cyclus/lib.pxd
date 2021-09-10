@@ -5,6 +5,7 @@ from libcpp.set cimport set as cpp_set
 from libcpp.map cimport map as cpp_map
 from libcpp.vector cimport vector as cpp_vector
 from libcpp.string cimport string as std_string
+from libcpp.memory cimport shared_ptr as std_shared
 from cython.operator cimport dereference as deref
 from cython.operator cimport preincrement as inc
 from libc.stdlib cimport malloc, free
@@ -31,7 +32,7 @@ cdef object query_result_to_py(cpp_cyclus.QueryResult)
 cdef object single_query_result_to_py(cpp_cyclus.QueryResult qr, int row)
 
 cdef class _FullBackend:
-    cdef void * ptx
+    cdef std_shared[cpp_cyclus.FullBackend] ptx
 
 cdef class _SqliteBack(_FullBackend):
     pass

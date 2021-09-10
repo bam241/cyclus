@@ -10,7 +10,7 @@ from libcpp.string cimport string as std_string
 from libcpp.vector cimport vector as std_vector
 
 # Python imports
-import collections
+import collections.abc
 
 try:
     import simplejson as json
@@ -49,7 +49,7 @@ cdef cpp_jsoncpp.Value * tocppval(object doc) except NULL:
     elif isinstance(doc, bytes):
         # bytes must come before other sequences
         cval = new cpp_jsoncpp.Value(<char *> doc)
-    elif isinstance(doc, collections.Sequence) or isinstance(doc, collections.Set):
+    elif isinstance(doc, collections.abc.Sequence) or isinstance(doc, collections.abc.Set):
         cval = new cpp_jsoncpp.Value(<cpp_jsoncpp.ValueType> cpp_jsoncpp.arrayValue)
         cval.resize(<int> len(doc))
         for i, d in enumerate(doc):

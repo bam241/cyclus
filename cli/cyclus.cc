@@ -122,16 +122,16 @@ int main(int argc, char* argv[]) {
   std::cout << "              :                                                               " << std::endl;
 
   // Create db backends and recorder
-  FullBackend* fback = NULL;
+  std::shared_ptr<FullBackend> fback = NULL;
   RecBackend::Deleter bdel;
   Recorder rec;  // Must be after backend deleter because ~Rec does flushing
 
   std::string ext = fs::path(ai.output_path).extension().string();
   std::string stem = fs::path(ai.output_path).stem().string();
   if (ext == ".h5") {
-    fback = new Hdf5Back(ai.output_path.c_str());
+    fback = std::make_shared<Hdf5Back>(ai.output_path.c_str());
   } else {
-    fback = new SqliteBack(ai.output_path);
+    fback = std::make_shared<SqliteBack>(ai.output_path);
   }
   rec.RegisterBackend(fback);
   bdel.Add(fback);
@@ -193,14 +193,14 @@ int main(int argc, char* argv[]) {
       std::cerr << "invalid restart spec: simid or time is invalid\n";
       return 1;
     }
-    FullBackend* rback = NULL;
+    std::shared_ptr<FullBackend> rback = NULL;
     RecBackend::Deleter bdel;
 
     std::string ext = dbfile.extension().string();
     if (ext == ".h5") {
-      rback = new Hdf5Back(dbfile.c_str());
+      rback = std::make_shared<Hdf5Back>(dbfile.c_str());
     } else {
-      rback = new SqliteBack(dbfile.c_str());
+      rback = std::make_shared<SqliteBack>(dbfile.c_str());
     }
     bdel.Add(rback);
 

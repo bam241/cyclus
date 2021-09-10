@@ -42,7 +42,7 @@ void Agent::InfileToDb(InfileTree* qe, DbInit di) {
       ->Record();
 }
 
-void Agent::InitFrom(QueryableBackend* b) {
+void Agent::InitFrom(std::shared_ptr<QueryableBackend> b) {
   QueryResult qr = b->Query("Agent", NULL);
   prototype_ = qr.GetVal<std::string>("Prototype");
   id_ = qr.GetVal<int>("AgentId");

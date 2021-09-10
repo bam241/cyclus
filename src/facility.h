@@ -75,7 +75,7 @@ class Facility : public TimeListener, public Agent, public Trader {
   virtual void InfileToDb(InfileTree* qe, DbInit di) {}
 
   // DO NOT call Agent class implementation of this method
-  virtual void InitFrom(QueryableBackend* b) {}
+  virtual void InitFrom(std::shared_ptr<QueryableBackend> b) {}
 
   // DO NOT call Agent class implementation of this method
   virtual void Snapshot(DbInit di) {}

@@ -197,7 +197,7 @@ class Context {
   /// Destructs and cleans up m (and it's children recursively).
   ///
   /// @warning this method should generally NOT be used by agents.
-  void DelAgent(Agent* m);
+  void DelAgent(Agent* m, bool py_del = true);
 
   /// Schedules the named prototype to be built for the specified parent at
   /// timestep t. The default t=-1 results in the build being scheduled for the

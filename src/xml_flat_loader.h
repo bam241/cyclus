@@ -15,7 +15,7 @@ std::string BuildFlatMasterSchema(std::string schema_path, std::string infile);
 /// a cyclus simulation from xml
 class XMLFlatLoader : public XMLFileLoader {
  public:
-  XMLFlatLoader(Recorder* r, QueryableBackend* b, std::string schema_path, 
+  XMLFlatLoader(Recorder* r, std::shared_ptr<QueryableBackend> b, std::string schema_path, 
                 const std::string load_filename="", const std::string format="none",
                 bool ms_print=false)
       : XMLFileLoader(r, b, schema_path, load_filename, format, ms_print) {}

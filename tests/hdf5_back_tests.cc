@@ -18,16 +18,15 @@ class Hdf5GlobalEnv : public ::testing::Environment {
  public:
   virtual void SetUp() {
     path = "db.h5";
-    db = new cyclus::Hdf5Back(path.c_str());
+    db = std::make_shared<cyclus::Hdf5Back>(path.c_str());
   }
 
   virtual void TearDown() {
-    delete db;
     remove(path.c_str());
   }
 
   std::string path;
-  cyclus::Hdf5Back* db;
+  std::shared_ptr<cyclus::Hdf5Back> db;
 };
 
 Hdf5GlobalEnv* const hdf5_glb_env = new Hdf5GlobalEnv;
@@ -95,7 +94,7 @@ class Hdf5BackTests : public ::testing::Test {
   }
 
   std::string path;
-  cyclus::Hdf5Back* db;
+  std::shared_ptr<cyclus::Hdf5Back> db;
   std::vector<int> shape;
   cyclus::QueryResult qr;
   cyclus::RecBackend::Deleter bdel;
@@ -110,8 +109,8 @@ TEST_F(Hdf5BackTests, ShapeSegfault) {
   // this test should not segfault
   cyclus::Recorder r;
   FileDeleter fd("segfault.h5");
-  cyclus::Hdf5Back b("segfault.h5");
-  r.RegisterBackend(&b);
+  std::shared_ptr<cyclus::Hdf5Back> b = std::make_shared<cyclus::Hdf5Back>("segfault.h5");
+  r.RegisterBackend(b);
   std::vector<int>* shape = new std::vector<int>();
   shape->push_back(1);
   std::vector<int> foo;
@@ -153,10 +152,10 @@ TEST(Hdf5BackTest, ReadWriteAll) {
 
   // creation
   Recorder m;
-  Hdf5Back back(path);
+  std::shared_ptr<Hdf5Back> back = std::make_shared<Hdf5Back>(path);
   vector<int> string_shape = vector<int>(1);
   string_shape[0] = 16;
-  m.RegisterBackend(&back);
+  m.RegisterBackend(back);
   m.NewDatum("DumbTitle")
       ->AddVal("string", str, &string_shape)
       ->AddVal("int", i)
@@ -190,22 +189,22 @@ TEST(Hdf5BackTest, ReadWriteAll) {
   string expfields[] = {"SimId", "string", "int", "float", "double"};
   cyclus::DbTypes exptypes[] = {cyclus::UUID, cyclus::STRING, cyclus::INT,
                                 cyclus::FLOAT, cyclus::DOUBLE};
-  cyclus::QueryResult qr = back.Query("DumbTitle", NULL);
+  cyclus::QueryResult qr = back->Query("DumbTitle", NULL);
   for (int i = 0; i < qr.fields.size(); i++) {
     EXPECT_STREQ(qr.fields[i].c_str(), expfields[i].c_str());
     EXPECT_EQ(qr.types[i], exptypes[i]);
   }
   std::vector<Cond> conds = std::vector<Cond>();
   conds.push_back(Cond("int", "==", 42));
-  qr = back.Query("DumbTitle", &conds);
+  qr = back->Query("DumbTitle", &conds);
   EXPECT_EQ(qr.rows.size(), 1);
 
   conds.push_back(Cond("int", ">=", 43));
-  qr = back.Query("DumbTitle", &conds);
+  qr = back->Query("DumbTitle", &conds);
   EXPECT_EQ(qr.rows.size(), 0);
 
   conds[1] = Cond("string", "==", str);
-  qr = back.Query("DumbTitle", &conds);
+  qr = back->Query("DumbTitle", &conds);
   EXPECT_EQ(qr.rows.size(), 1);
 }
 
@@ -220,14 +219,14 @@ TEST(Hdf5BackTest, ColumnTypes) {
 
   // creation
   Recorder m;
-  Hdf5Back back(path);
-  m.RegisterBackend(&back);
+  std::shared_ptr<Hdf5Back> back = std::make_shared<Hdf5Back>(path);
+  m.RegisterBackend(back);
   m.NewDatum("IntTable")
       ->AddVal("intcol", i)
       ->Record();
   m.Close();
 
-  map<string, cyclus::DbTypes> coltypes = back.ColumnTypes("IntTable");
+  map<string, cyclus::DbTypes> coltypes = back->ColumnTypes("IntTable");
   EXPECT_EQ(2, coltypes.size());  // injects simid
   EXPECT_EQ(cyclus::INT, coltypes["intcol"]);
 }
@@ -243,14 +242,14 @@ TEST(Hdf5BackTest, Tables) {
 
   // creation
   Recorder m;
-  Hdf5Back back(path);
-  m.RegisterBackend(&back);
+  std::shared_ptr<Hdf5Back> back = std::make_shared<Hdf5Back>(path);
+  m.RegisterBackend(back);
   m.NewDatum("IntTable")
       ->AddVal("intcol", i)
       ->Record();
   m.Close();
 
-  set<string> tabs = back.Tables();
+  set<string> tabs = back->Tables();
   EXPECT_LE(1, tabs.size());
   EXPECT_EQ(1, tabs.count("IntTable"));
 }

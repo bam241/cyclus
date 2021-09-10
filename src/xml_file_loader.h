@@ -54,7 +54,7 @@ class XMLFileLoader {
   /// schema_file identifies the master xml rng schema used to validate the
   /// input file. The format specifies the input file format from one of:
   /// "none", "xml", "json", or "py".
-  XMLFileLoader(Recorder* r, QueryableBackend* b, std::string schema_file, 
+  XMLFileLoader(Recorder* r, std::shared_ptr<QueryableBackend> b, std::string schema_file, 
                 const std::string input_file="", const std::string format="none", bool ms_print=false);
 
   virtual ~XMLFileLoader();
@@ -98,7 +98,7 @@ class XMLFileLoader {
   Recorder* rec_;
   Timer ti_;
   Context* ctx_;
-  QueryableBackend* b_;
+  std::shared_ptr<QueryableBackend> b_;
   
   /// flag to indicate printing master schema
   bool ms_print_;

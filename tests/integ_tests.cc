@@ -42,7 +42,7 @@ std::string FullPath(std::string infile) {
 
 // RunSim runs the cyclus input file at path infile
 // storing the results in back.
-void RunSim(std::string infile, SqliteBack* back) {
+void RunSim(std::string infile, std::shared_ptr<SqliteBack> back) {
   PyStart();
   Recorder r;
   r.RegisterBackend(back);
@@ -81,26 +81,26 @@ TEST(IntegTests, RunAllInfiles) {
 
   for (int i = 0; i < infiles.size(); i++) {
     {
-      SqliteBack back(":memory:");
-      RunSim(infiles[i], &back);
+      std::shared_ptr<SqliteBack> back = std::make_shared<SqliteBack>(":memory:");
+      RunSim(infiles[i], back);
     }
   }
 }
 
 TEST(IntegTests, CustomTimestepDur) {
   {
-    SqliteBack back(":memory:");
-    RunSim("custom_dt.xml", &back);
-    QueryResult qr = back.Query("TimeStepDur", NULL);
+    std::shared_ptr<SqliteBack> back = std::make_shared<SqliteBack>(":memory:");
+    RunSim("custom_dt.xml", back);
+    QueryResult qr = back->Query("TimeStepDur", NULL);
     EXPECT_EQ(86400, qr.GetVal<int>("DurationSecs"));
   }
 }
 
 TEST(IntegTests, CustomTimestepDurFlat) {
   {
-    SqliteBack back(":memory:");
-    RunSim("custom_dt_flat.xml", &back);
-    QueryResult qr = back.Query("TimeStepDur", NULL);
+    std::shared_ptr<SqliteBack> back = std::make_shared<SqliteBack>(":memory:");
+    RunSim("custom_dt_flat.xml", back);
+    QueryResult qr = back->Query("TimeStepDur", NULL);
     EXPECT_EQ(86400, qr.GetVal<int>("DurationSecs"));
   }
 }

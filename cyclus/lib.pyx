@@ -10,6 +10,8 @@ from libcpp.map cimport map as std_map
 from libcpp.vector cimport vector as std_vector
 from libcpp.string cimport string as std_string
 from libcpp.list cimport list as std_list
+from libcpp.memory cimport shared_ptr as std_shared
+from libcpp.memory cimport make_shared as std_make_shared
 from cython.operator cimport dereference as deref
 from cython.operator cimport preincrement as inc
 from libc.stdlib cimport malloc, free
@@ -22,7 +24,8 @@ from cpython.pycapsule cimport PyCapsule_GetPointer
 from binascii import hexlify
 import uuid
 import os
-from collections import Mapping, Sequence, Iterable, defaultdict
+from collections.abc import Mapping, Sequence, Iterable
+from collections import defaultdict
 from importlib import import_module
 
 cimport numpy as np
@@ -110,7 +113,8 @@ cdef class _Datum:
         if type is None:
             raise TypeError('a database or C++ type must be supplied to add a '
                             'value to the datum, got None.')
-        cdef cpp_cyclus.hold_any v = py_to_any(value, type)
+        cdef cpp_cyclus.hold_any v 
+        v = py_to_any(value, type)
         if isinstance(field, str):
             field = field.encode()
         elif isinstance(field, bytes):
@@ -194,14 +198,14 @@ cdef class _FullBackend:
         """Full backend C++ constructor"""
         self._tables = None
 
-    def __dealloc__(self):
-        """Full backend C++ destructor."""
-        # Note that we have to do it this way since self.ptx is void*
-        if self.ptx == NULL:
-            return
-        cdef cpp_cyclus.FullBackend * cpp_ptx = <cpp_cyclus.FullBackend *> self.ptx
-        del cpp_ptx
-        self.ptx = NULL
+    # def __dealloc__(self):
+    #     """Full backend C++ destructor."""
+    #     # Note that we have to do it this way since self.ptx is void*
+    #     if self.ptx == NULL:
+    #         return
+    #     cdef cpp_cyclus.FullBackend * cpp_ptx = <cpp_cyclus.FullBackend *> self.ptx
+    #     del cpp_ptx
+    #     self.ptx = NULL
 
     def query(self, table, conds=None):
         """Queries a database table.
@@ -228,7 +232,7 @@ cdef class _FullBackend:
         if conds is None:
             conds_ptx = NULL
         else:
-            coltypes = (<cpp_cyclus.FullBackend*> self.ptx).ColumnTypes(tab)
+            coltypes = (<cpp_cyclus.FullBackend*>self.ptx.get()).ColumnTypes(tab)
             for cond in conds:
                 cond0 = cond[0].encode()
                 cond1 = cond[1].encode()
@@ -242,14 +246,14 @@ cdef class _FullBackend:
             else:
                 conds_ptx = &cpp_conds
         # query, convert, and return
-        qr = (<cpp_cyclus.FullBackend*> self.ptx).Query(tab, conds_ptx)
+        qr = (<cpp_cyclus.FullBackend*>self.ptx.get()).Query(tab, conds_ptx)
         res, fields = query_result_to_py(qr)
         results = pd.DataFrame(res, columns=fields)
         return results
 
     def schema(self, table):
         cdef std_string ctable = str_py_to_cpp(table)
-        cdef std_list[cpp_cyclus.ColumnInfo] cis = (<cpp_cyclus.QueryableBackend*> self.ptx).Schema(ctable)
+        cdef std_list[cpp_cyclus.ColumnInfo] cis = (<cpp_cyclus.FullBackend*>self.ptx.get()).Schema(ctable)
         rtn = []
         for ci in cis:
             py_ci = ColumnInfo()
@@ -263,7 +267,7 @@ cdef class _FullBackend:
         if self._tables is not None:
             return self._tables
         cdef std_set[std_string] ctabs = \
-            (<cpp_cyclus.FullBackend*> self.ptx).Tables()
+            (<cpp_cyclus.FullBackend*>self.ptx.get()).Tables()
         cdef std_set[std_string].iterator it = ctabs.begin()
         cdef set tabs = set()
         while it != ctabs.end():
@@ -293,30 +297,30 @@ cdef class _SqliteBack(_FullBackend):
     def __cinit__(self, path):
         """Full backend C++ constructor"""
         cdef std_string cpp_path = str(path).encode()
-        self.ptx = new cpp_cyclus.SqliteBack(cpp_path)
+        self.ptx = <std_shared[cpp_cyclus.FullBackend]>std_make_shared[cpp_cyclus.SqliteBack](cpp_path)
 
-    def __dealloc__(self):
-        """Full backend C++ destructor."""
-        # Note that we have to do it this way since self.ptx is void*
-        if self.ptx == NULL:
-            return
-        cdef cpp_cyclus.SqliteBack * cpp_ptx = <cpp_cyclus.SqliteBack *> self.ptx
-        del cpp_ptx
-        self.ptx = NULL
+    # def __dealloc__(self):
+    #     """Full backend C++ destructor."""
+    #     # Note that we have to do it this way since self.ptx is void*
+    #     if self.ptx == NULL:
+    #         return
+    #     cdef cpp_cyclus.SqliteBack * cpp_ptx = <cpp_cyclus.SqliteBack *> self.ptx
+    #     del cpp_ptx
+    #     self.ptx = NULL
 
     def flush(self):
         """Flushes the database to disk."""
-        (<cpp_cyclus.SqliteBack*> self.ptx).Flush()
+        (<cpp_cyclus.SqliteBack*>self.ptx.get()).Flush()
 
     def close(self):
         """Closes the backend, flushing it in the process."""
         self.flush()  # just in case
-        (<cpp_cyclus.SqliteBack*> self.ptx).Close()
+        (<cpp_cyclus.SqliteBack*>self.ptx.get()).Close()
 
     @property
     def name(self):
         """The name of the database."""
-        name = (<cpp_cyclus.SqliteBack*> self.ptx).Name()
+        name = (<cpp_cyclus.SqliteBack*>self.ptx.get()).Name()
         name = name.decode()
         return name
 
@@ -330,29 +334,29 @@ cdef class _Hdf5Back(_FullBackend):
     def __cinit__(self, path):
         """Hdf5 backend C++ constructor"""
         cdef std_string cpp_path = str(path).encode()
-        self.ptx = new cpp_cyclus.Hdf5Back(cpp_path)
+        self.ptx = <std_shared[cpp_cyclus.FullBackend]>std_make_shared[cpp_cyclus.Hdf5Back](cpp_path)
 
-    def __dealloc__(self):
-        """Full backend C++ destructor."""
-        # Note that we have to do it this way since self.ptx is void*
-        if self.ptx == NULL:
-            return
-        cdef cpp_cyclus.Hdf5Back * cpp_ptx = <cpp_cyclus.Hdf5Back *> self.ptx
-        del cpp_ptx
-        self.ptx = NULL
+    # def __dealloc__(self):
+    #     """Full backend C++ destructor."""
+    #     # Note that we have to do it this way since self.ptx is void*
+    #     if self.ptx == NULL:
+    #         return
+    #     cdef cpp_cyclus.Hdf5Back * cpp_ptx = <cpp_cyclus.Hdf5Back *> self.ptx
+    #     del cpp_ptx
+    #     self.ptx = NULL
 
     def flush(self):
         """Flushes the database to disk."""
-        (<cpp_cyclus.Hdf5Back*> self.ptx).Flush()
+        (<cpp_cyclus.Hdf5Back*>self.ptx.get()).Flush()
 
     def close(self):
         """Closes the backend, flushing it in the process."""
-        (<cpp_cyclus.Hdf5Back*> self.ptx).Close()
+        (<cpp_cyclus.Hdf5Back*>self.ptx.get()).Close()
 
     @property
     def name(self):
         """The name of the database."""
-        name = (<cpp_cyclus.Hdf5Back*> self.ptx).Name()
+        name = (<cpp_cyclus.Hdf5Back*>self.ptx.get()).Name()
         name = name.decode()
         return name
 
@@ -409,15 +413,13 @@ cdef class _Recorder:
 
     def register_backend(self, backend):
         """Registers a backend with the recorder."""
-        cdef cpp_cyclus.RecBackend* b
+        cdef std_shared[cpp_cyclus.RecBackend] b
         if isinstance(backend, Hdf5Back):
-            b = <cpp_cyclus.RecBackend*> (
-                <cpp_cyclus.Hdf5Back*> (<_Hdf5Back> backend).ptx)
+            b = (<std_shared[cpp_cyclus.RecBackend]> (<_Hdf5Back> backend).ptx)
         elif isinstance(backend, SqliteBack):
-            b = <cpp_cyclus.RecBackend*> (
-                <cpp_cyclus.SqliteBack*> (<_SqliteBack> backend).ptx)
+            b = (<std_shared[cpp_cyclus.RecBackend]> (<_SqliteBack> backend).ptx)
         elif isinstance(backend, FullBackend):
-            b = <cpp_cyclus.RecBackend*> ((<_FullBackend> backend).ptx)
+            b = (<std_shared[cpp_cyclus.RecBackend]> (<_FullBackend> backend).ptx)
         else:
             raise ValueError("type of backend not recognized for " +
                              str(type(backend)))
@@ -836,7 +838,7 @@ cdef class _XMLFileLoader:
         cdef cpp_bool cpp_msprint = bool_to_cpp(ms_print)
         self.ptx = new cpp_cyclus.XMLFileLoader(
             <cpp_cyclus.Recorder *> (<_Recorder> recorder).ptx,
-            <cpp_cyclus.QueryableBackend *> (<_FullBackend> backend).ptx,
+            <std_shared[cpp_cyclus.QueryableBackend]> (<_FullBackend> backend).ptx,
             cpp_schema_file, cpp_input_file, cpp_format, cpp_msprint)
 
     def __dealloc__(self):
@@ -869,7 +871,7 @@ cdef class _XMLFlatLoader:
         cdef cpp_bool cpp_msprint = bool_to_cpp(ms_print)
         self.ptx = new cpp_cyclus.XMLFlatLoader(
             <cpp_cyclus.Recorder *> (<_Recorder> recorder).ptx,
-            <cpp_cyclus.QueryableBackend *> (<_FullBackend> backend).ptx,
+            <std_shared[cpp_cyclus.QueryableBackend]> (<_FullBackend> backend).ptx,
             cpp_schema_file, cpp_input_file, cpp_format, cpp_msprint)
 
     def __dealloc__(self):
@@ -1213,7 +1215,7 @@ cdef class _SimInit:
         self.ptx = new cpp_cyclus.SimInit()
         self.ptx.Init(
             <cpp_cyclus.Recorder *> (<_Recorder> recorder).ptx,
-            <cpp_cyclus.QueryableBackend *> (<_FullBackend> backend).ptx,
+            <std_shared[cpp_cyclus.QueryableBackend]> (<_FullBackend> backend).ptx,
             )
         self._timer = None
         self._context = None
@@ -1387,7 +1389,6 @@ cdef class _Agent:
         function, they must call their superclass' decommission function at the
         END of their decommission() function.
         """
-        print('decom_agent')
         (<cpp_cyclus.Agent*> self.ptx).Decommission()
 
     @property
@@ -1622,7 +1623,7 @@ cdef class _Context:
 
     def del_agent(self, agent):
         """Destructs and cleans up an agent (and it's children recursively)."""
-        self.ptx.DelAgent(dynamic_agent_ptr(agent))
+        self.ptx.DelAgent(dynamic_agent_ptr(agent), False)
 
     @property
     def sim_id(self):
@@ -1664,9 +1665,7 @@ cdef class _Context:
         t. The default t=-1 results in the decommission being scheduled for the
         next decommission phase (i.e. the end of the current timestep).
         """
-        print('schedule')
         self.ptx.SchedDecom(dynamic_agent_ptr(agent), t)
-        print('schedule2')
 
     def new_datum(self, title):
         """Returns a new datum instance."""

@@ -55,7 +55,7 @@ void CommodityRecipeContext::InfileToDb(InfileTree* qe, DbInit di) {
   }
 }
 
-void CommodityRecipeContext::InitFrom(QueryableBackend* b) {
+void CommodityRecipeContext::InitFrom(std::shared_ptr<QueryableBackend> b) {
   QueryResult qr = b->Query("CommodityRecipeContext_inoutmap", NULL);
   for (int i = 0; i < qr.rows.size(); ++i) {
     AddInCommod(qr.GetVal<std::string>("in_commod", i),

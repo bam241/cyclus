@@ -4,6 +4,8 @@ import json
 import subprocess
 
 from nose.tools import assert_in, assert_true, assert_greater_equal
+from tools import check_cmd
+
 
 inputfile = {
  'simulation': {
@@ -44,23 +46,35 @@ inputfile = {
  },
 }
 
+CWD = os.path.dirname(__file__)
+INPUT = os.path.join(CWD, "input")
 
 def test_bear_deploy():
-    if os.path.exists('bears.h5'):
-        os.remove('bears.h5')
-    with open('bears.json', 'w') as f:
+
+    sim_input = os.path.join(INPUT, 'bears.json')
+    sim_output = os.path.join(INPUT, 'bears.h5')
+
+    if os.path.exists(sim_output):
+        os.remove(sim_output)
+    with open(sim_input, 'w') as f:
         json.dump(inputfile, f)
+
     env = dict(os.environ)
     env['PYTHONPATH'] = "."
-    s = subprocess.check_output(['cyclus', '-o', 'bears.h5', 'bears.json'],
-                                universal_newlines=True, env=env)
+
+    cmd = ["cyclus", "-o", sim_output, "--input-file", sim_input]
+    s = subprocess.check_output(cmd, cwd=".", universal_newlines=True, env=env)
+
+
     # test that the institution deploys a BearStore
     assert_in("New fac: BearStore", s)
     # test that the first agents exist with right minimum production.
     agents = re.compile('Agent \d+ 8\.0')
     all_agents = set(agents.findall(s))
     assert_greater_equal(len(all_agents), 9)
-    if os.path.exists('bears.json'):
-        os.remove('bears.json')
-    if os.path.exists('bears.h5'):
-        os.remove('bears.h5')
+
+    if os.path.exists(sim_input):
+        os.remove(sim_input)
+    if os.path.exists(sim_output):
+        os.remove(sim_output)
+

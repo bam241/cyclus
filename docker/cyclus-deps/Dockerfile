@@ -36,47 +36,49 @@ RUN conda config --add channels conda-forge
 RUN conda update -n base -c defaults conda
 RUN conda update -y --all && \
     conda install -y \
-               openssh \
-               gxx_linux-64 \
-               gcc_linux-64 \
-               cmake \
-               make \
-               docker-pycreds \
-               git \
-               xo \
-               python-json-logger \
-               glib=2.56 \
-               libxml2 \
-               libxmlpp \
-               libblas \
-               libcblas \
-               liblapack \
-               pkg-config \
-               coincbc=2.9 \
-               boost-cpp \
-               hdf5 \
-               sqlite \
-               pcre \
-               gettext \
-               bzip2 \
-               xz \
-               setuptools \
-               nose \
-               pytables \
-               pandas \
-               jinja2 \
-               "cython<=0.28.5" \
-               websockets \
-               pprintpp \
-               && \
-    conda clean -y --all
+                openssh \
+                gxx_linux-64 \
+                gcc_linux-64 \
+                cmake \
+                make \
+                docker-pycreds \
+                git \
+                xo \
+                python-json-logger \
+                glib \
+                glibmm \
+                libxml2 \
+                libxmlpp \
+                libblas \
+                libcblas \
+                liblapack \
+                pkg-config \
+                coincbc \
+                boost-cpp \
+                hdf5 \
+                sqlite \
+                pcre \
+                gettext \
+                bzip2 \
+                xz \           
+    && \
+    conda clean -y --all 
 ENV CC /opt/conda/bin/x86_64-conda_cos6-linux-gnu-gcc
 ENV CXX /opt/conda/bin/x86_64-conda_cos6-linux-gnu-g++
 ENV CPP /opt/conda/bin/x86_64-conda_cos6-linux-gnu-cpp
-ENV PYTHONPATH "/home/conda/.local/lib/python3.7/site-packages/:/root/.local/lib/python3.7/site-packages/"
+RUN pip install setuptools \
+                tables \
+                pandas \
+                jinja2 \
+                websockets \
+                pprintpp \
+                nose \
+                cython
+
+ENV PYTHONPATH "/home/conda/.local/lib/python3.9/site-packages/:/root/.local/lib/python3.9/site-packages/"
 # required for the nosetest
 ENV PYTHONWARNINGS ignore
-RUN mkdir -p /root/.local/lib/python3.7/site-packages/
+RUN mkdir -p /root/.local/lib/python3.9/site-packages/
 #
 # pip packages to overide conda
 #
